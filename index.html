@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Login - PyBlock</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module" src="index.js"></script>
+</head>
+<body>
+    <div class="wrapper"></div>
+        <img src="images/logo.png" alt="PyBlock Logo" class="logo">
+        <div class="index-container">
+            <!-- Log in section-->
+            <div class="login-container" id="login-container">
+                <h1>Log In</h1>
+                <div class="login-form">
+                    <!-- Log in form-->
+                    <form action="" method="post">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                        <button href="" class="button-link" id="forgot-password-button">Forgot Password?</button>
+
+                        <button type="submit">Log In</button>
+                        <button onclick=toggleLoginSignup()>Sign Up</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Sign up section-->
+            <div class="signup-container" id="signup-container">
+                <h1>Sign Up</h1>
+                <div class="signup-form">
+                    <!-- Sign up form-->
+                    <form action="" method="post">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email"
+                            pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" required>
+
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" 
+                            pattern="^[a-zA-Z0-9_]{4,16}$" required>
+
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password"
+                            pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$" required>
+
+                        <button onclick=toggleLoginSignup()>Log In</button>
+                        <button type="submit">Sign Up</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Log in options the same for SignUp and LogIn-->
+            <div class="login-options">
+                <button href="" class="button-link" id="continue-with-google">
+                    Continue with Google
+                    <img src="images/google-logo.png" alt="Google Logo" class="google-logo">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    
+    <script>
+        // Initially hide the signup container
+        document.getElementById("signup-container").style.display = "none";
+
+        // Toggles between login and signup forms
+        function toggleLoginSignup() {
+            const loginContainer = document.getElementById("login-container");
+            const signupContainer = document.getElementById("signup-container");
+
+            if (loginContainer.style.display === "none") {
+                loginContainer.style.display = "block";
+                signupContainer.style.display = "none";
+            } else {
+                loginContainer.style.display = "none";
+                signupContainer.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>
