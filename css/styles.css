@@ -31,7 +31,7 @@ h1 {
     border-radius: 20px;
 }
 
-.login-form form,
+.signin-form form,
 .signup-form form {
     display: flex;
     flex-wrap: wrap;
@@ -56,6 +56,9 @@ input[type="email"] {
     width: 100%;
     padding: 12px 20px;
     margin: 0 0 8px 0;
+
+    color: white;
+    font-family: "Anonymous Pro";
 
     background-color: #52525277;
     border: 2px solid #000000;

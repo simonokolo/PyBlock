@@ -1,5 +1,28 @@
 {
   "dependencies": {
     "firebase": "^12.1.0"
-  }
+  },
+  "devDependencies": {
+    "vite": "^7.1.1"
+  },
+  "name": "pyblock",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SimonOkolo/PyBlock.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SimonOkolo/PyBlock/issues"
+  },
+  "homepage": "https://github.com/SimonOkolo/PyBlock#readme",
+  "description": ""
 }

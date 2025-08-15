@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Login - PyBlock</title>
+    <title>SignIn - PyBlock</title>
     <link rel="stylesheet" href="css/styles.css">
-    <script type="module" src="index.js"></script>
+    <script type="module" src="js/main.js"></script>
 </head>
 <body>
     <div class="wrapper"></div>
         <img src="images/logo.png" alt="PyBlock Logo" class="logo">
         <div class="index-container">
-            <!-- Log in section-->
-            <div class="login-container" id="login-container">
-                <h1>Log In</h1>
-                <div class="login-form">
-                    <!-- Log in form-->
-                    <form action="" method="post">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" name="username" required>
+            <!-- Sign In section-->
+            <div class="signin-container" id="signin-container">
+                <h1>Sign In</h1>
+                <div class="signin-form">
+                    <!-- Sign In form-->
+                    <form id="signin-form">
+                        <label for="email">Username / Email</label>
+                        <input type="email" id="signin-email" name="email" required>
 
                         <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required>
+                        <input type="password" id="signin-password" name="password" required>
+
                         <button href="" class="button-link" id="forgot-password-button">Forgot Password?</button>
 
-                        <button type="submit">Log In</button>
-                        <button onclick=toggleLoginSignup()>Sign Up</button>
+                        <button type="submit">Sign In</button>
+                        <button type="button" onclick=toggleSigninSignup()>Sign Up</button>
                     </form>
                 </div>
             </div>
@@ -33,27 +34,41 @@
                 <h1>Sign Up</h1>
                 <div class="signup-form">
                     <!-- Sign up form-->
-                    <form action="" method="post">
+                    <form id="signup-form">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email"
+                        <input type="email" id="signup-email" name="email"
                             pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" required>
 
                         <label for="username">Username</label>
-                        <input type="text" id="username" name="username" 
+                        <input type="text" id="signup-username" name="username" 
                             pattern="^[a-zA-Z0-9_]{4,16}$" required>
 
                         <label for="password">Password</label>
-                        <input type="password" id="password" name="password"
+                        <input type="password" id="signup-password" name="password"
                             pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$" required>
 
-                        <button onclick=toggleLoginSignup()>Log In</button>
+                        <button type="button" onclick=toggleSigninSignup()>Sign In</button>
                         <button type="submit">Sign Up</button>
                     </form>
                 </div>
             </div>
 
-            <!-- Log in options the same for SignUp and LogIn-->
-            <div class="login-options">
+            <div class="forgot-password-container" id="forgot-password-container">
+                <h1>Forgot Password</h1>
+                <div class="forgot-password-form">
+                    <!-- Forgot Password form-->
+                    <form id="forgot-password-form">
+                        <label for="email">Email</label>
+                        <input type="email" id="forgot-password-email" name="email" required>
+
+                        <button type="submit">Reset Password</button>
+                        <button type="button" onclick=toggleSigninSignup()>Sign In</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sign In options the same for SignUp and SignIn-->
+            <div class="signin-options">
                 <button href="" class="button-link" id="continue-with-google">
                     Continue with Google
                     <img src="images/google-logo.png" alt="Google Logo" class="google-logo">
@@ -64,22 +79,52 @@
 
     
     <script>
-        // Initially hide the signup container
-        document.getElementById("signup-container").style.display = "none";
+        // Cache DOM elements
+        const views = {
+            signin: document.getElementById("signin-container"),
+            signup: document.getElementById("signup-container"),
+            forgot: document.getElementById("forgot-password-container")
+        };
 
-        // Toggles between login and signup forms
-        function toggleLoginSignup() {
-            const loginContainer = document.getElementById("login-container");
-            const signupContainer = document.getElementById("signup-container");
+        const fields = {
+            signin: [
+                document.getElementById("signin-email"),
+                document.getElementById("signin-password")
+            ],
+            signup: [
+                document.getElementById("signup-email"),
+                document.getElementById("signup-username"),
+                document.getElementById("signup-password")
+            ],
+            forgot: [
+                document.getElementById("forgot-password-email")
+            ]
+        };
 
-            if (loginContainer.style.display === "none") {
-                loginContainer.style.display = "block";
-                signupContainer.style.display = "none";
-            } else {
-                loginContainer.style.display = "none";
-                signupContainer.style.display = "block";
-            }
+        // Hide all views and set required attributes
+        function showView(viewName) {
+            Object.keys(views).forEach(name => {
+                views[name].style.display = (name === viewName) ? "block" : "none";
+                fields[name].forEach(field => field.required = (name === viewName));
+            });
         }
+
+        // Button actions
+        document.getElementById("forgot-password-button").addEventListener("click", e => {
+            e.preventDefault();
+            showView("forgot");
+        });
+
+        function toggleSigninSignup() {
+            const nextView = (views.signin.style.display === "none") ? "signin" : "signup";
+            showView(nextView);
+        }
+
+        // Initialize default view
+        showView("signin");
     </script>
+
+
 </body>
 </html>
+    
