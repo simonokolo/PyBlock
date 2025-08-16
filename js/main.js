@@ -1,10 +1,10 @@
 import './firebase-config.js';
-import { handleSignIn, handleSignUp, handleGoogleSignIn, checkGoogleSignInResult } from './auth.js';
+import { handleSignIn, handleSignUp, handleGoogleSignIn, checkAuthForIndex, sendEmailVerification } from './auth.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Check for Google sign-in result
-    checkGoogleSignInResult();
+    // Check for sign-in result
+    checkAuthForIndex();
 
     // Add event listener to the sign-in form
     document.getElementById('signin-form').addEventListener('submit', handleSignIn);
@@ -14,5 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add event listener to the Google sign-in button
     document.getElementById('continue-with-google').addEventListener('click', handleGoogleSignIn);
+
+    // Add event listener to the password reset button
+    document.getElementById('forgot-password-form').addEventListener('submit', sendEmailVerification);
 });
+
+
 

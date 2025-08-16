@@ -1,0 +1,177 @@
+@import url('https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Istok+Web:ital,wght@0,400;0,700;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+
+
+body {
+    overflow: hidden;
+    font-family: "Istok Web", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 17px;
+    color: #FFFFFF;
+}
+
+
+
+.dropdown-selection-button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: "Istok Web", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 17px;
+    color: #FFFFFF;
+    background-color: #ffffff00;
+    border: none;
+    cursor: pointer;
+}
+
+.main-header {
+    display: flex;
+    gap: 10px;
+    flex-direction: row;
+}
+
+.header-button {
+    display: flex;
+    padding: 6px;
+    align-items: center;
+    color: #FFFFFF;
+    background-color: #16161B;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.profile-picture {
+    padding: 5px;
+    border-radius: 100%;
+}
+
+.dropdown-button {
+    width: 30px;
+    height: 30px;
+    margin-left: auto;
+    transform: rotate(180deg);
+    transition: transform 0.3s ease;
+}
+
+.rotate {
+    transform: rotate(0deg);
+}
+
+#profile-username {
+    justify-content: center;
+}
+
+#large-profile-picture {
+    width: 50px;
+    height: 50px;
+    margin: 5px 0 0 10px;
+}
+
+#small-profile-picture {
+    width: 30px;
+    margin-right: 10px;
+    height: auto;
+}
+
+#profile-dropdown-button {
+    min-width: 250px;
+}
+
+#file-dropdown-button {
+    padding: 0 10px 0 10px;
+}
+
+/* Profile dropdown */
+
+.profile-dropdown {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    min-width: 250px;
+    border-radius: 10px;
+    background-color: #16161B;
+}
+
+.profile-information {
+    display: flex;
+    align-items: center;
+}
+
+.profile-personal-information {
+    margin: 10px;
+}
+
+.profile-personal-information p {
+    margin: 0;
+}
+
+.profile-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    padding: 10px
+}
+
+#profile-email {
+    color: #9E9E9E;
+    font-size: 12px;
+}
+
+/* File dropdown */
+
+.file-dropdown {
+    position: absolute;
+    display: flex;
+    margin: 10px 0 0 260px;
+    padding: 5px;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 10px;
+    background-color: #16161B;
+}
+
+.file-dropdown-options {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    margin: 10px;
+}
+
+.spacer {
+    height: 10px;
+}
+
+.load-cloud-projects-section {
+    display: flex;
+    margin: 10px;
+    min-width: 200px;
+    border-radius: 10px;
+    background-color: #7474749c;
+}
+
+.load-project {
+    margin: 10px;
+    gap: 10px;
+    display: flex;
+    flex-direction: row;
+    height: fit-content;
+}
+
+/* DEFAULTS */
+.profile-dropdown,
+.file-dropdown {
+    display: none;
+    z-index: 10;
+}
+
+/* Sets element as visible */
+.show {
+    display: flex !important;
+}

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Workspace - PyBlock</title>
+        <link rel="stylesheet" href="../css/workspace.css">
+        <script type="module" src="../js/workspace.js"></script>
+    </head>
+    <body>
+        <div class="header">
+            <div class="main-header">
+                <button class="header-button" id="profile-dropdown-button">
+                    <img class="profile-picture" id="small-profile-picture"src="https://static.vecteezy.com/system/resources/thumbnails/004/511/281/small_2x/default-avatar-photo-placeholder-profile-picture-vector.jpg">
+                    <a id="profile-username" class="profile-username">John Doe</a>
+                    <img class="dropdown-button" src="../images/icons/ui-icons/dropdown-icon.svg">
+                </button>
+
+                <button class="header-button" id="file-dropdown-button">
+                    <a>File</a>
+                    <img class="dropdown-button" src="../images/icons/ui-icons/dropdown-icon.svg">
+                </button>
+            </div>
+
+            <!-- Appears when the user presses the profile dropdown button -->
+            <div class="profile-dropdown">
+                <section class="profile-information">
+                    <img class="profile-picture" id="large-profile-picture" src="https://static.vecteezy.com/system/resources/thumbnails/004/511/281/small_2x/default-avatar-photo-placeholder-profile-picture-vector.jpg">
+                    <section class="profile-personal-information">
+                        <p id="profile-username">John Doe</p>
+                        <p id="profile-email">John.Doe@company.com</p>
+                    </section>
+                </section>
+                <hr style="width: 85%; margin: 5px auto 0 auto; border-bottom: none; border-color: #9E9E9E;">
+                <section class="profile-buttons">
+                    <button class="dropdown-selection-button" id="profile-settings-button">
+                        <img alt="cog-wheel-png" src="../images/icons/ui-icons/settings-icon.svg">
+                        Profile Settings
+                    </button>
+            
+                    <button class="dropdown-selection-button" id="sign-out-button">
+                        <img alt="sign-out-png" src="../images/icons/ui-icons/logout-icon.svg">
+                        Sign Out
+                    </button>
+                </section>
+            </div>
+
+            <!-- Appears when the user presses the file dropdown button -->
+             <div class="file-dropdown">
+                <div class="file-dropdown-options">
+                    <button class="dropdown-selection-button" id="save-project-button">
+                        <img alt="save-png" src="../images/icons/ui-icons/save-icon.svg">
+                        Save Project
+                    </button>
+                    <button class="dropdown-selection-button" id="new-project-button">
+                        <img alt="page-png" src="../images/icons/ui-icons/page-icon.svg">
+                        New Project
+                    </button>
+                    <div class="spacer"></div>
+                    <button class="dropdown-selection-button" id="download-project-button">
+                        <img alt="download-png" src="../images/icons/ui-icons/download-icon.svg">
+                        Download Project
+                    </button>
+                    <button class="dropdown-selection-button" id="upload-project-button">
+                        <img alt="upload-png" src="../images/icons/ui-icons/upload-icon.svg">
+                        Upload Project
+                    </button>
+                </div>
+
+                <div class="load-cloud-projects-section">
+                    <section class="load-project">
+                        <img alt="file-upload-png" src="../images/icons/ui-icons/whiteload-icon.svg">
+                        Load Project
+                    </section>
+                    <div class="project-list">
+                        <!-- Dynamically updated list-->
+                    </div>
+                </div>
+             </div>
+        </div>
+    </body>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const profileBtn = document.getElementById("profile-dropdown-button");
+            const fileBtn = document.getElementById("file-dropdown-button");
+            const profileDropdown = document.querySelector(".profile-dropdown");
+            const fileDropdown = document.querySelector(".file-dropdown");
+
+            // Toggle Profile Dropdown
+            profileBtn.addEventListener("click", (e) => {
+                e.stopPropagation(); 
+                profileDropdown.classList.toggle("show");
+                fileDropdown.classList.remove("show");
+
+                // Flip arrow
+                profileBtn.querySelector(".dropdown-button").classList.toggle("rotate");
+                fileBtn.querySelector(".dropdown-button").classList.remove("rotate");
+            });
+
+            // Toggle File Dropdown
+            fileBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                fileDropdown.classList.toggle("show");
+                profileDropdown.classList.remove("show");
+
+                // Flip arrow
+                fileBtn.querySelector(".dropdown-button").classList.toggle("rotate");
+                profileBtn.querySelector(".dropdown-button").classList.remove("rotate");
+            });
+
+            // Close if clicking outside
+            document.addEventListener("click", () => {
+                profileDropdown.classList.remove("show");
+                fileDropdown.classList.remove("show");
+                profileBtn.querySelector(".dropdown-button").classList.remove("rotate");
+                fileBtn.querySelector(".dropdown-button").classList.remove("rotate");
+            });
+        });
+    </script>
+</html> 

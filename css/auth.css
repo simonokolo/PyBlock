@@ -1,0 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+body {
+    margin: 0;
+    height: 100vh;
+    color: white;
+    font-family: "Anonymous Pro";
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #2A2A2A;
+    background-image:
+        linear-gradient(to right, #404040 1px, transparent 1px),
+        linear-gradient(to bottom, #404040 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+
+h1 {
+    margin-top: 0;
+    text-align: center;
+}
+
+.index-container {
+    width: 100%;
+    padding: 40px;
+    background-color: #252525b0;
+    border: 0.5px solid #000;
+    border-radius: 20px;
+}
+
+.signin-form form,
+.signup-form form,
+.forgot-password-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.logo {
+    max-width: 400px;
+    margin-bottom: 50px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 8px;
+    color: white;
+    font-family: "Anonymous Pro";
+    background-color: #52525277;
+    border: 2px solid #000;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+/* Label + forgot link row */
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.label-row label {
+    margin: 0;
+}
+.label-row a {
+    font-size: 14px;
+    color: #f3f3f3;
+    text-decoration: underline;
+}
+.label-row a:hover {
+    color: #63b3ed;
+}
+
+/* Buttons */
+.button-primary {
+    padding: 14px 20px;
+    background-color: #424242be;
+    color: white;
+    font-size: 18px;
+    font-family: "Anonymous Pro";
+    border: 2px solid #020202;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.button-primary:hover {
+    background-color: #45a049;
+}
+
+.button-secondary {
+    padding: 14px 20px;
+    background-color: transparent;
+    color: #ccc;
+    font-size: 16px;
+    font-family: "Anonymous Pro";
+    border: 2px solid #888;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.button-secondary:hover {
+    background-color: #444;
+}
+
+/* Link-style button */
+.button-link {
+    background: none;
+    border: none;
+    color: #1e90ff;
+    text-decoration: underline;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+}
+.button-link:hover {
+    color: #63b3ed;
+}
+
+
+.button-google {
+    background-color: white;
+    color: black;
+    font-family: "Anonymous Pro";
+    border: 2px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 10px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+.button-google .google-logo {
+    height: 20px;
+    width: 20px;
+}
+
+.full-width {
+    width: 100%;
+}
+.auth-alt-row {
+    display: flex;
+    gap: 10px;
+}
+
+.auth-alt-row button {
+    flex: 1 1 200px; 
+}
