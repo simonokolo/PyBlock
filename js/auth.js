@@ -11,116 +11,118 @@ import
 
 import { auth, provider } from './firebase-config.js';
 
-// Function to handle sign-in
+
+/**
+ * ---------------------------
+ * AUTHENTICATION FUNCTIONS
+ * ---------------------------
+ */
+
+// Sign In (email/password)
 export function handleSignIn(event) {
-    event.preventDefault(); // Cancel form submission
+  event.preventDefault();
+  const email = document.getElementById("signin-email").value;
+  const password = document.getElementById("signin-password").value;
 
-    //Get email and password from the form
-    const email = document.getElementById('signin-email').value;
-    const password = document.getElementById('signin-password').value;
-
-    // Sign in with Firebase Authentication
-    signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-        console.log("Signed in")
-        const user = userCredential.user;
-        window.location.href = '/pages/workspace.html';
-    })
-    .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error(errorCode, errorMessage);
-    });
+  return signInWithEmailAndPassword(auth, email, password)
+    .then(() => console.log("Signed in"))
+    .catch((err) => console.error("Sign-in error:", err.code, err.message));
 }
 
-// Function to handle sign-up
+// Sign Up (email/password)
 export function handleSignUp(event) {
-    event.preventDefault(); // Cancel form submission
+  event.preventDefault();
+  const email = document.getElementById("signup-email").value;
+  const password = document.getElementById("signup-password").value;
 
-    // Get email and password from the form
-    const email = document.getElementById('signup-email').value;
-    const username = document.getElementById('signup-username').value;
-    const password = document.getElementById('signup-password').value;
-
-    // Sign up with Firebase Authentication
-    createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
-        console.log("Signed up")
-        const user = userCredential.user;
-        window.location.href = '/pages/workspace.html';
-    })
-    .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error(errorCode, errorMessage);
-    });
+  return createUserWithEmailAndPassword(auth, email, password)
+    .then(() => console.log("Signed up"))
+    .catch((err) => console.error("Sign-up error:", err.code, err.message));
 }
 
-// Function to handle Google sign-in
+// Google Sign-In
 export function handleGoogleSignIn() {
-    signInWithPopup(auth, provider).then((result) => {
-        const user = result.user
-        console.log("Signed in")
-    }).catch((error) => {
-        console.log(error.code, error.message)
-    })
+  return signInWithPopup(auth, provider)
+    .then(() => console.log("Google sign-in successful"))
+    .catch((err) => console.error("Google sign-in error:", err.code, err.message));
 }
 
-// Authentication for the index page
-export function checkAuthForIndex() {
-    // Check if there are any errors in the URL
-    const urlParams = new URLSearchParams(window.location.search);
+// Send Password Reset Email
+export function sendPasswordReset(event) {
+  event.preventDefault();
+  const email = document.getElementById("forgot-password-email").value;
 
-    getRedirectResult(auth).then((result) => {
-        if (result) {
-            console.log("Signed in")
-            // Redirect if signed in
-            const user = result.user;
-            window.location.href = '/pages/workspace.html'
-            return;
-        }
-        
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Redirect if signed in
-                console.log("(Persistent) Signed in")
-                window.location.href = '/pages/workspace.html'
-            } else {
-                console.log("No user is signed in");
-            }
-        });
-    })
-    .catch((error) => {
-        console.error("ERROR:", error.code, error.message);
-    });
+  return sendPasswordResetEmail(auth, email)
+    .then(() => console.log("Password reset email sent"))
+    .catch((err) => console.error("Password reset error:", err.code, err.message));
 }
 
-export function checkAuthForWorkspace() {
-    onAuthStateChanged(auth, (user) => {
-        if (!user) {
-            // Redirect if NOT signed in
-            console.log("No user is signed in");
-            window.location.href = '/index.html';
-        } //No need to do anything if user is authorised
-    });
-}
-
-// Function to send password reset email
-export function sendEmailVerification(event) {
-    event.preventDefault(); // Cancel form submission
-    
-    const email = document.getElementById('forgot-password-email').value;
-
-    sendPasswordResetEmail(auth, email).then(() => {
-        console.log("Password reset email sent");
-    })
-    .catch((error) => {
-        console.error(error.code, error.message);
-    });
-}
-
+// Sign Out
 export function signUserOut() {
-    signOut(auth).then(() => {
-        console.log("signed out")
-    }).catch((error) => {
-        console.log("sign out error")
+  return signOut(auth)
+    .then(() => console.log("Signed out"))
+    .catch((err) => console.error("Sign out error:", err));
+}
+
+/**
+ * ---------------------------
+ * AUTH STATE CHECKS
+ * ---------------------------
+ */
+
+// Index Page Auth
+export function checkAuthForIndex() {
+  getRedirectResult(auth)
+    .then((result) => {
+      if (result && result.user) {
+        console.log("Sign In Via Redirect:", result.user.email);
+        window.location.href = "/pages/workspace.html";
+      }
     })
+    .catch((error) => console.error("Redirect error:", error));
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("Sign In:", user.email);
+      window.location.href = "/pages/workspace.html";
+    } else {
+      console.log("No user signed in");
+    }
+  });
+}
+
+// Workspace Page Auth
+export function checkAuthForWorkspace() {
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      console.log("No user signed in");
+      window.location.href = "/index.html";
+    } else {
+      console.log("User signed in :", user.email);
+      console.log(user)
+
+      // Update account elements
+      document.getElementById('profile-username').textContent = user.displayName;
+      document.getElementById('profile-username-dropdown').textContent = user.displayName;
+      document.getElementById('profile-email').textContent = user.email;
+      document.getElementById('small-profile-picture').src = user.photoURL;
+      document.getElementById('large-profile-picture').src = user.photoURL;
+    }
+  });
+}
+
+//Account settings page auth
+export function checkAuthForAccountSettings() {
+  onAuthStateChanged(auth, (user) => {
+    if(!user) {
+      console.log("No user signed in")
+      window.location.href = "/index.html";
+    } else {
+
+      //Update elements
+      document.getElementById('user-profile-picture').src = user.photoURL;
+      document.getElementById('change-username').value = user.displayName;
+      document.getElementById('change-email').value = user.email;
+    }
+  })
 }

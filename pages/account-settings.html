@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Account Settings - Pyblock</title>
+        <link rel="stylesheet" href="../css/account-settings.css">
+        <script type="module" src="../js/account-settings.js"></script>
+    </head>
+    <body>
+        <div class="wrapper">
+            <section class="account-settings-header">
+                <h1>Account settings</h1>
+                <button id="back-button" type="button">Back</button>
+            </section>
+
+            <hr id="divider">
+
+            <section class="profile-picture-section">
+                <img alt="profile-picture" id="user-profile-picture" src="https://static.vecteezy.com/system/resources/thumbnails/004/511/281/small_2x/default-avatar-photo-placeholder-profile-picture-vector.jpg">
+                <div class="profile-picture-options">
+                    <h2>Profile Picture</h2>
+                    <p>Accepted file type .png .jpg .jpeg. Less than 1MB</p>
+                    <div class="upload-container" id="image-drop">
+                        <a>Drag and drop your image here or</a>
+                        <button id="file-select">click to upload</button>
+                    </div>
+                    <div id="image-preview"></div>
+                </div>
+            </section>
+
+            <hr id="divider">
+
+            <section class="public-information-section">
+                <form id="username-email-form">
+                    <div class="username-email-inputs">
+                        <div class="label-button">
+                            <label for="change-username">username</label>
+                            <input type="text" id="change-username" name="username" pattern="^[a-zA-Z0-9_]{4,16}$" required>
+                        </div>
+                        
+                        <div class="label-button">
+                            <label for="change-email">email</label>
+                            <input type="email" id="change-email" name="email" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" required>                            
+                        </div>
+                    </div>
+                    <div class="options" id="username-email-options">
+                        <button type="button" class="discard-button" id="username-email-discard-button">Discard</button>
+                        <button type="submit" class="save-change-button" id="username-email-save-change-button">Save Changes</button>
+                    </div>
+                </form>
+            </section>
+
+            <hr id="divider">
+
+            <section class="change-password-section">
+                <h1>Change Password</h1>
+                <form id="change-password-form">
+                    <div class="password-inputs">
+                        <div class="label-button">
+                            <label for="new-password">new password</label>
+                            <input type="password" id="new-password" name="new-password" pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$" required>
+                        </div>
+
+                        <div class="label-button">
+                            <label for="confirm-password">re-enter password</label>
+                            <input type="password" id="confirm-password" name="confirm-password" pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$" required>
+                        </div>
+                    </div>
+                    <div class="options" id="password-options">
+                        <button type="button" class="discard-button" id="password-discard-button">Discard</button>
+                        <button type="submit" class="save-change-button" id="password-save-change-button">Save Changes</button>
+                    </div>
+                </form>
+            </section>
+
+            <hr id="divider">
+
+            <section class="black-hole">
+                <div>
+                    <h2>Delete account</h2>
+                    <p>This action is IRREVERSIBLE (cannot be undone)</p>
+                </div>
+                <button id="delete-account-button" type="button" >Delete Account</button>
+            </section>
+        </div>
+    </body>
+</html>

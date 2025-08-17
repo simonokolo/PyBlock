@@ -1,5 +1,5 @@
 import './firebase-config.js';
-import { handleSignIn, handleSignUp, handleGoogleSignIn, checkAuthForIndex, sendEmailVerification } from './auth.js';
+import { handleSignIn, handleSignUp, handleGoogleSignIn, checkAuthForIndex, sendPasswordReset } from './auth.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('continue-with-google').addEventListener('click', handleGoogleSignIn);
 
     // Add event listener to the password reset button
-    document.getElementById('forgot-password-form').addEventListener('submit', sendEmailVerification);
+    document.getElementById('forgot-password-form').addEventListener('submit', sendPasswordReset);
 });
 
 
