@@ -2,6 +2,7 @@ import
 { signInWithEmailAndPassword, 
     createUserWithEmailAndPassword, 
     signInWithRedirect,
+    signInWithPopup,
     getRedirectResult,
     onAuthStateChanged,
     sendPasswordResetEmail,
@@ -55,43 +56,20 @@ export function handleSignUp(event) {
 
 // Function to handle Google sign-in
 export function handleGoogleSignIn() {
-    console.log("=== GOOGLE SIGN-IN DEBUG ===");
-    console.log("Current origin:", window.location.origin);
-    console.log("Auth config:", auth.app.options);
-    console.log("Provider:", provider);
-    
-    // Let's see what happens if we manually set some provider options
-    provider.setCustomParameters({
-        'redirect_uri': window.location.origin,
-        'prompt': 'select_account'
-    });
-    
-    console.log("Modified provider:", provider);
-    
-    signInWithRedirect(auth, provider)
-        .then(() => {
-            console.log("signInWithRedirect promise resolved");
-        })
-        .catch((error) => {
-            console.error("signInWithRedirect error:", error);
-        });
+    signInWithPopup(auth, provider).then((result) => {
+        const user = result.user
+        console.log("Signed in")
+    }).catch((error) => {
+        console.log(error.code, error.message)
+    })
 }
 
 // Authentication for the index page
 export function checkAuthForIndex() {
-
-    console.log("=== ENHANCED DEBUG INFO ===");
-    console.log("Current URL:", window.location.href);
-    console.log("URL search params:", window.location.search);
-    console.log("Auth current user:", auth.currentUser);
-    console.log("Auth app options:", auth.app.options);
-    
     // Check if there are any errors in the URL
     const urlParams = new URLSearchParams(window.location.search);
-    console.log("All URL params:", Object.fromEntries(urlParams));
 
     getRedirectResult(auth).then((result) => {
-        console.log("getRedirectResult result:", result);
         if (result) {
             console.log("Signed in")
             // Redirect if signed in
