@@ -12,6 +12,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    user-select: none;
     background-color: #2A2A2A;
     background-image:
         linear-gradient(to right, #3a3a3a 1px, transparent 1px),
@@ -112,6 +113,10 @@ input[type="email"]:focus {
     outline: none;
     border-color: #2D6CDF;
     background-color: #25252A;
+}
+
+#change-email {
+    color: #898989;
 }
 
 /* ---------- Forms ---------- */
