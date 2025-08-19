@@ -172,37 +172,6 @@ label {
     border: 3px solid #000000;
 }
 
-.profile-picture-options h2 {
-    margin: 0 0 6px;
-    font-size: 18px;
-}
-
-.profile-picture-options p {
-    margin: 0;
-    font-size: 14px;
-    color: #9E9E9E;
-}
-
-.upload-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #EAEAEA;
-    color: #000;
-    font-size: 14px;
-    margin: 12px 0;
-    height: 100px;
-    padding: 12px;
-    border-radius: 8px;
-    border: 2px dashed #888;
-    transition: background-color 0.2s ease;
-}
-
-.upload-container:hover {
-    background-color: #dcdcdc;
-}
-
 /* ---------- Delete Section ---------- */
 .black-hole {
     display: flex;

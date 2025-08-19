@@ -10,6 +10,7 @@ import
 } from "firebase/auth";
 
 import { auth, provider } from './firebase-config.js';
+import { digestMessage } from './utils/hash.js'
 
 
 /**
@@ -32,7 +33,7 @@ export function handleSignIn(event) {
 // Sign Up (email/password)
 export async function handleSignUp(event) {
   event.preventDefault();
-  const email = document.getElementById("signup-email").value;
+  const email = document.getElementById("signup-email").value.toLowerCase();
   const password = document.getElementById("signup-password").value;
   const displayName = document.getElementById("signup-username").value;
 
@@ -41,8 +42,14 @@ export async function handleSignUp(event) {
     sessionStorage.setItem("accountUpdatePending", "1");
     const { user } = await createUserWithEmailAndPassword(auth, email, password);
 
+    const emailHash = await digestMessage(email);
+    const gravatarURL = `https://www.gravatar.com/avatar/${emailHash}?d=wavatar`
+
     // Added async await to ensure that the program waits for the promise before continuing
-    await updateProfile(user, { displayName });
+    await updateProfile(user, { 
+      displayName,
+      photoURL : gravatarURL 
+    });
     await user.reload(); // Clears old user cache
 
     // Clears flag to allow OnAuthStateChanged to redirect
