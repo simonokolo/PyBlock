@@ -1,11 +1,12 @@
 import 
 { signInWithEmailAndPassword, 
     createUserWithEmailAndPassword, 
+    reauthenticateWithCredential,
     signInWithPopup,
-    getRedirectResult,
     onAuthStateChanged,
     sendPasswordResetEmail,
     updateProfile,
+    updatePassword,
     signOut
 } from "firebase/auth";
 
@@ -22,7 +23,7 @@ import { digestMessage } from './utils/hash.js'
 // Sign In (email/password)
 export function handleSignIn(event) {
   event.preventDefault();
-  const email = document.getElementById("signin-email").value;
+  const email = document.getElementById("signin-email").value.trim();
   const password = document.getElementById("signin-password").value;
 
   return signInWithEmailAndPassword(auth, email, password)
@@ -134,21 +135,75 @@ export function checkAuthForAccountSettings() {
   })
 }
 
-/**
+/*
  * ---------------------------
  * ACCOUNT FUNCTIONS
  * ---------------------------
- */
+*/
 
-function updateUserProfile () {
-  updateProfile(auth.currentUser, {
-    displayName: "Jane Q. User", photoURL: "https://example.com/jane-q-user/profile.jpg"
-  }).then(() => {
-    console.log("profile updated")
-    // Profile updated!
-    // ...
-  }).catch((error) => {
-    // An error occurred
-    // ...
-  });
+// Update the users displayName
+export async function updateUserProfile(event) {
+  event.preventDefault();
+  // Retrieve the value in the username input box
+  const newUsername = document.getElementById("change-username").value.trim();
+
+  try {
+    await updateProfile(auth.currentUser, { displayName: newUsername });
+    await auth.currentUser.reload(); // Refresh auth to show the new changes
+
+    alert("Profile updated successfully!");
+  } catch (err) {
+    console.error("Error updating profile:", err);
+  }
 }
+
+// Update the users password
+export function updateUserPassword(event) {
+  event.preventDefault();
+
+  // Get both inputted passwords from the page
+  const newPassword = document.getElementById('new-password').value
+  const confirmPassword = document.getElementById('confirm-password').value
+
+  //If they dont match then alert the user and dont allow them to continue
+  if (newPassword !== confirmPassword) {
+    console.warn("Passwords don't match")
+    alert("Passwords do not match")
+    return;
+  }
+
+  // Update the password
+  updatePassword(auth.currentUser, newPassword).then(() => {
+    console.log("Password Updated")
+  }).catch((err) => {
+    console.warn(err.code, err.message)
+
+    // Check if error code is the reauthentication error
+    if (err.code === "auth/requires-recent-login") {
+      document.getElementById('authentication-popup').classList.add("active");
+    } else {
+      alert(err.message)
+    }
+  })
+}
+
+import { EmailAuthProvider } from "firebase/auth";
+
+export async function reauthenticateUser(event) {
+  event.preventDefault();
+
+  // Get contents of inputs on the popup
+  const authEmail = document.getElementById('authentication-email').value.trim()
+  const authPassword = document.getElementById('authentication-password').value
+
+  // Create the credential
+  const credential = EmailAuthProvider.credential(authEmail, authPassword)
+
+  await reauthenticateWithCredential (auth.currentUser, credential).then(() => {
+    console.log("User ReAuthenticated")
+  })
+  .catch((err) => {
+    console.error(err.code, err.message)
+  })
+}
+
