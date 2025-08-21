@@ -1,0 +1,33 @@
+#viewport {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  background: #fd0000;
+}
+
+#canvas {
+  width: 8000px; 
+  height: 5000px;
+  background-color: #2A2A2A;
+    background-image:
+        linear-gradient(to right, #404040 1px, transparent 1px),
+        linear-gradient(to bottom, #404040 1px, transparent 1px);
+    background-size: 50px 50px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(0,0);
+}
+
+.node {
+  width: 120px;
+  height: 60px;
+  background: #2600ff;
+  border: 1px solid #6e005c;
+  border-radius: 8px;
+  color: white;
+  position: absolute;
+  user-select: none;
+  cursor: grab;
+}

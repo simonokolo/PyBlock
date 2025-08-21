@@ -1,6 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Istok+Web:ital,wght@0,400;0,700;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
-
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
 
 body {
     overflow: hidden;
@@ -11,7 +16,11 @@ body {
     color: #FFFFFF;
 }
 
-
+.header {
+    margin: 10px;
+    position: absolute;
+    z-index: 1000;
+}
 
 .dropdown-selection-button {
     display: flex;
@@ -174,4 +183,8 @@ body {
 /* Sets element as visible */
 .show {
     display: flex !important;
+}
+
+.workspace-main {
+    height: 100vh;
 }
