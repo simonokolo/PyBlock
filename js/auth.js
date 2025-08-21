@@ -7,6 +7,7 @@ import
     sendPasswordResetEmail,
     updateProfile,
     updatePassword,
+    deleteUser,
     signOut
 } from "firebase/auth";
 
@@ -175,6 +176,7 @@ export function updateUserPassword(event) {
   // Update the password
   updatePassword(auth.currentUser, newPassword).then(() => {
     console.log("Password Updated")
+    alert("Password updated successfully!")
   }).catch((err) => {
     console.warn(err.code, err.message)
 
@@ -201,9 +203,36 @@ export async function reauthenticateUser(event) {
 
   await reauthenticateWithCredential (auth.currentUser, credential).then(() => {
     console.log("User ReAuthenticated")
+    document.getElementById('authentication-popup').classList.remove("active");
   })
   .catch((err) => {
+    alert("Reauthentication failed. Please try again.")
     console.error(err.code, err.message)
+  })
+}
+
+// Generate a deletion code for account deletion
+export const generateDeletionCode = () => {
+  // Generate a random 6-digit code
+  const code = Math.floor(100000 + Math.random() * 900000);
+  // Display the code in the deletion code element
+  document.getElementById('deletion-code').textContent = `Enter the code ${code} below to delete:`;
+  return code;
+}
+
+// Delete users account
+export async function deleteAccount() {
+  deleteUser(auth.currentUser).then(() => {
+    alert("Deleted Account")
+  }).catch((err) => {
+    console.warn(err.code, err.message)
+
+    // Check if error code is the reauthentication error
+    if (err.code === "auth/requires-recent-login") {
+      document.getElementById('authentication-popup').classList.add("active");
+    } else {
+      alert(err.message)
+    }
   })
 }
 

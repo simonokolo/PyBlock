@@ -3,6 +3,7 @@
     <head>
         <title>Account Settings - Pyblock</title>
         <link rel="stylesheet" href="../css/account-settings.css">
+        <link rel="icon" type="image/x-icon" href="../images/logo/pyblock-icon.ico">
         <script type="module" src="../js/account-settings.js"></script>
     </head>
     <body>
@@ -60,10 +61,16 @@
 
             <hr id="divider">
 
+            <!--Delete Account Section-->
             <section class="black-hole">
                 <div>
                     <h2>Delete account</h2>
                     <p>This action is IRREVERSIBLE (cannot be undone)</p>
+                    <br>
+
+                    <!--Generate random deletion code-->
+                    <p id="deletion-code">Enter the code X below to delete:</p>
+                    <input type="text" id="deletion-code-input" name="deletion-code" required>
                 </div>
                 <button id="delete-account-button" type="button" >Delete Account</button>
             </section>
@@ -80,7 +87,7 @@
                     <label for="authentication-email">Email</label>
                     <input type="email" id="authentication-email" name="email" required>
 
-                    <label for="authentication-password">Password</label>
+                    <label for="authentication-password">Current Password</label>
                     <input type="password" id="authentication-password" name="password" required>
 
                     <button type="submit" class="authentication-submit">Submit</button>
