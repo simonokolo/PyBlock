@@ -4,7 +4,6 @@ export class Canvas {
     this.setupViewport();
     this.setupEventListeners();
 
-
     this.isPanning = false;
     this.startX = 0;
     this.startY = 0;
@@ -18,7 +17,7 @@ export class Canvas {
 
     this.zoom = 1;
     this.zoomStep = 0.1;
-    this.zoomMin = 0.4;
+    this.zoomMin = 0.6;
     this.zoomMax = 2;
   }
 
@@ -60,11 +59,14 @@ export class Canvas {
         this.translateY = e.clientY - this.startY;
 
         // Make sure canvas is always in the negative to zero range
-        if (this.translateX > 0) {this.translateX = 0; }
-        if (this.translateY > 0) {this.translateY = 0; }
-        
+        const minX = this.viewport.clientWidth - (8000 * this.zoom);
+        const minY = this.viewport.clientHeight - (5000 * this.zoom);
+
+        // Clamp the canvas
+        this.translateX = Math.max(minX, Math.min(0, this.translateX));
+        this.translateY = Math.max(minY, Math.min(0, this.translateY));
+                
         this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
-        console.log(this.canvas.style.transform)
       }
 
       // move node if dragging
@@ -72,8 +74,8 @@ export class Canvas {
         // move the node
         let x = e.clientX - this.offsetX - this.translateX;
         let y = e.clientY - this.offsetY - this.translateY;
-        this.draggedNode.style.left = `${x}px`;
-        this.draggedNode.style.top = `${y}px`;
+        this.draggedNode.style.left = `${x / this.zoom}px`;
+        this.draggedNode.style.top = `${y / this.zoom}px`;
       }
     });
 
@@ -109,10 +111,14 @@ export class Canvas {
       // Apply clamping
       if (this.translateX > 0) {this.translateX = 0;}
       if (this.translateY > 0) {this.translateY = 0;}
+
+      if (this.translateX < this.viewport.clientWidth - this.canvas.clientWidth * this.zoom) {
+        this.translateX = this.viewport.clientWidth - this.canvas.clientWidth * this.zoom;
+      }
       
       // Apply the new transform
       this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
-      console.log(this.canvas.style.transform)
+      this.updateGrid();
     })
 
 
@@ -120,14 +126,26 @@ export class Canvas {
 
     this.canvas.querySelectorAll(".node").forEach(node => {
       node.addEventListener("mousedown", e => {
-        if (e.button !== 0) return; // Make sure the canvas only moves with the right mouse button
+        if (e.button !== 0) return; // Make sure the canvas only moves with the left mouse button
         this.draggedNode = node;
-        this.offsetX = e.offsetX;
-        this.offsetY = e.offsetY;
+        this.offsetX = e.offsetX * this.zoom;
+        this.offsetY = e.offsetY * this.zoom;
         this.viewport.style.cursor = "grabbing";
         e.stopPropagation();
       });
-    })
-    
+    }) 
+  }
+
+  updateGrid() {
+    // Fade OUT small grid when zoomed out
+    const alpha = Math.min(1, Math.max(0, (this.zoom - 0.5) / 0.5));
+
+    // Update the background image
+    this.canvas.style.backgroundImage = `
+      linear-gradient(to right, rgb(64, 64, 64, 1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(64, 64, 64, 1) 1px, transparent 1px),
+      linear-gradient(to right, rgb(52, 52, 52,${0.5 * alpha}) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(52, 52, 52,${0.5 * alpha}) 1px, transparent 1px)
+    `;
   }
 }

@@ -10,10 +10,12 @@
   width: 8000px; 
   height: 5000px;
   background-color: #2A2A2A;
-    background-image:
-        linear-gradient(to right, #404040 1px, transparent 1px),
-        linear-gradient(to bottom, #404040 1px, transparent 1px);
-    background-size: 50px 50px;
+  background-image:
+    linear-gradient(to right, rgb(64, 64, 64, 1) 1px, transparent 1px),
+    linear-gradient(to bottom, #404040 1px, transparent 1px),
+    linear-gradient(to right, rgb(52, 52, 52, 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(52, 52, 52, 0.5) 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
   position: absolute;
   left: 0;
   top: 0;
