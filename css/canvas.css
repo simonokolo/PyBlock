@@ -1,9 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Istok+Web:ital,wght@0,400;0,700;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
 #viewport {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   position: relative;
-  background: #fd0000;
+  background-image: url("../Screenshot\ 2025-06-16\ 193353.png");
 }
 
 #canvas {
@@ -34,3 +36,14 @@
   user-select: none;
   cursor: grab;
 }
+
+#scale-text {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.404);
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  text-align: center;
+}
+

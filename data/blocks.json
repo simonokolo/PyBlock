@@ -1,0 +1,119 @@
+{
+  "blocks": [
+    {
+      "name": "Input",
+      "type": "Input / Output",
+      "blockImage": "../images/icons/block-icons/inputPyblock.png"
+    },
+    {
+      "name": "Output",
+      "type": "Input / Output",
+      "blockImage": "../images/icons/block-icons/outputPyblock.png"
+    },
+    {
+      "name": "While",
+      "type": "Loops",
+      "blockImage": "../images/icons/block-icons/whilePyblock.png"
+    },
+    {
+      "name": "Loop",
+      "type": "Loops",
+      "blockImage": "../images/icons/block-icons/loopPyblock.png"
+    },
+    {
+      "name": "If",
+      "type": "Loops",
+      "blockImage": "../images/icons/block-icons/ifPyblock.png"
+    },
+    {
+      "name": "And",
+      "type": "Logic",
+      "blockImage": "../images/icons/block-icons/andPyblock.png"
+    },
+    {
+      "name": "Not",
+      "type": "Logic",
+      "blockImage": "../images/icons/block-icons/notPyblock.png"
+    },
+    {
+      "name": "Or",
+      "type": "Logic",
+      "blockImage": "../images/icons/block-icons/orPyblock.png"
+    },
+    {
+      "name": "Equals",
+      "type": "Logic",
+      "blockImage": "../images/icons/block-icons/equalsPyblock.png"
+    },
+    {
+      "name": "GreaterThan",
+      "type": "Logic",
+      "blockImage": "../images/icons/block-icons/greaterThanPyblock.png"
+    },
+    {
+      "name": "LessThan",
+      "type": "Logic",
+      "blockImage": "../images/icons/block-icons/lessThanPyblock.png"
+    },
+    {
+      "name": "GreaterEqualThan",
+      "type": "Logic",
+      "blockImage": "../images/icons/block-icons/greaterEqualPyblock.png"
+    },
+    {
+      "name": "LessEqualThan",
+      "type": "Logic",
+      "blockImage": "../images/icons/block-icons/lessEqualPyblock.png"
+    },
+    {
+      "name": "Add",
+      "type": "Math",
+      "blockImage": "../images/icons/block-icons/addPyblock.png"
+    },
+    {
+      "name": "Subtract",
+      "type": "Math",
+      "blockImage": "../images/icons/block-icons/subtractPyblock.png"
+    },
+    {
+      "name": "Multiply",
+      "type": "Math",
+      "blockImage": "../images/icons/block-icons/multiplyPyblock.png"
+    },
+    {
+      "name": "Divide",
+      "type": "Math",
+      "blockImage": "../images/icons/block-icons/dividePyblock.png"
+    },
+    {
+      "name": "Modulus",
+      "type": "Math",
+      "blockImage": "../images/icons/block-icons/modPyblock.png"
+    },
+    {
+      "name": "Random",
+      "type": "Math",
+      "blockImage": "../images/icons/block-icons/randomPyblock.png"
+    },
+    {
+      "name": "VarSet",
+      "type": "Variable",
+      "blockImage": "../images/icons/block-icons/varSetPyblock.png"
+    },
+    {
+      "name": "VarGet",
+      "type": "Variable",
+      "blockImage": "../images/icons/block-icons/varGetPyblock.png"
+    },
+    {
+      "name": "VarCreate",
+      "type": "Variable",
+      "blockImage": "../images/icons/block-icons/varCreatePyblock.png"
+    },
+    {
+      "name": "Start",
+      "type": "Terminator",
+      "blockImage": "../images/icons/block-icons/startPyblock.png"
+    }
+  ]
+}

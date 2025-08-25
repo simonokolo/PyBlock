@@ -1,0 +1,82 @@
+#catalogue {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  background-color: #16161B;
+  border: 1px solid #55555585;
+  border-width: 1px 1px 1px 0;
+  border-radius: 0 8px 0 0;
+}
+
+.catalogue-container {
+  transform: translateX(-420px);
+  transition: transform 0.3s ease-in-out;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Input field styling */
+#blockSearch {
+  width: 380px; 
+  padding: 8px 12px;
+  margin: 5px;
+  background-color: #2a2a2f;
+  border: 1px solid #55555585;
+  border-radius: 4px;
+  color: white;
+  font-family: "Istok Web", sans-serif;
+  font-size: 14px;
+  outline: none;
+}
+
+/* Catalogue Title Button */
+.title {
+  transform: rotate(90deg);
+  background-color: #16161B;
+  font-family: "Istok Web", sans-serif;
+  color: white;
+  border: 1px solid #55555585;
+  cursor: pointer;
+  padding: 12px 18px;
+  border-radius: 6px 6px 0 0;
+  border-width: 1px 1px 0 1px;
+  margin-bottom: 30px;
+  font-size: 16px;
+  position: absolute;
+  right: -78px;
+  bottom: 0; 
+}
+
+.catalogue-content {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  overflow-y: scroll;
+  gap: 0px;
+  background-color: #16161B;
+  width: 400px;
+  height: 500px;
+  padding: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  align-items: start;
+}
+
+/* Slide-in effect */
+.open {
+  transform: translateX(0);
+}
+
+.nodePlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+}
+
+.nodePlaceholder img {
+  max-width: 90%;
+  height: auto;
+}

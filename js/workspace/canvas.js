@@ -17,24 +17,25 @@ export class Canvas {
 
     this.zoom = 1;
     this.zoomStep = 0.1;
-    this.zoomMin = 0.6;
+    this.zoomMin = 0.3;
     this.zoomMax = 2;
   }
 
   setupViewport() {
-    this.container.innerHTML = `
+    this.container.outerHTML = `
         <div id="viewport">
-            <div id="canvas">
-                <div class="node" id="node" style="left:100px;top:100px;">Node A</div>
-                <div class="node" id="node" style="left:300px;top:200px;">Node B</div>
-            </div>
+          <h5 id="scale-text">Scale: 100%</h5>
+          <div id="canvas">
+            <div class="node" id="node" style="left:100px;top:100px;">Node A</div>
+            <div class="node" id="node" style="left:300px;top:200px;">Node B</div>
+          </div>
         </div>
     `;
 
     console.log('Viewport created!');
 
-    this.viewport = this.container.querySelector("#viewport");
-    this.canvas = this.container.querySelector("#canvas");
+    this.viewport = document.querySelector("#viewport");
+    this.canvas = document.querySelector("#canvas");
   }
 
   setupEventListeners() {
@@ -118,6 +119,7 @@ export class Canvas {
       
       // Apply the new transform
       this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
+      this.updateZoomText();
       this.updateGrid();
     })
 
@@ -147,5 +149,12 @@ export class Canvas {
       linear-gradient(to right, rgb(52, 52, 52,${0.5 * alpha}) 1px, transparent 1px),
       linear-gradient(to bottom, rgb(52, 52, 52,${0.5 * alpha}) 1px, transparent 1px)
     `;
+  }
+
+  // Update the zoom text display
+  updateZoomText() {
+    const scaleText = document.getElementById("scale-text");
+    // Update the text content with the current zoom percentage
+    scaleText.textContent = `Scale: ${Math.round(this.zoom * 100)}%`;
   }
 }
