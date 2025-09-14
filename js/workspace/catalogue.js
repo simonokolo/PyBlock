@@ -45,7 +45,7 @@ export class Catalogue {
     })
   }
 
-  // Fetches block data from a JSON file
+  // Fetches block data from a JSON file to initialise the catalogue box
   async fetchBlocks() {
     try {
       // Fetch the JSON file
@@ -76,8 +76,18 @@ export class Catalogue {
         div.id = `${block.name}-node`;
         div.className = "nodePlaceholder";
         div.innerHTML = `
-          <img src="${block.blockImage}" alt="${block.name}">
+          <img src="${block.blockImage}" alt="${block.name}" draggable="true">
         `;
+
+        // Drag start event to set the data being dragged
+        div.addEventListener('dragstart', (e) => {
+          const blockData = {
+            name: block.name,
+            blockImage: block.blockImage
+          };
+          // Set the drag data as a JSON string
+          e.dataTransfer.setData('application/json', JSON.stringify(blockData));
+        });
 
         // Append the block div to the catalogue content
         this.catalogueContent.appendChild(div);

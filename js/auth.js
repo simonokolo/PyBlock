@@ -14,7 +14,6 @@ import
 import { auth, provider } from './firebase-config.js';
 import { digestMessage } from './utils/hash.js'
 
-
 /**
  * ---------------------------
  * AUTHENTICATION FUNCTIONS

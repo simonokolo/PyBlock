@@ -26,8 +26,6 @@ export class Canvas {
         <div id="viewport">
           <h5 id="scale-text">Scale: 100%</h5>
           <div id="canvas">
-            <div class="node" id="node" style="left:100px;top:100px;">Node A</div>
-            <div class="node" id="node" style="left:300px;top:200px;">Node B</div>
           </div>
         </div>
     `;
@@ -43,7 +41,7 @@ export class Canvas {
     //---------[EVENT LISTENERS FOR CANVAS MOVEMENT]---------//
 
     this.viewport.addEventListener("mousedown", e => {
-      if (e.button !== 1) return; // Make sure the canvas only moves with the middle mouse button
+      if (e.button !== 1) return; // Make sure the canvas only moves with the middle mouse button [Doesnt work for trackpads]
       // only pan when clicking empty space
       if (e.target === this.canvas) { 
         this.isPanning = true;
@@ -123,7 +121,6 @@ export class Canvas {
       this.updateGrid();
     })
 
-
     //---------[EVENT LISTENERS NODE MOVEMENT]---------//
 
     this.canvas.querySelectorAll(".node").forEach(node => {
@@ -136,6 +133,17 @@ export class Canvas {
         e.stopPropagation();
       });
     }) 
+
+    // Drag and drop from catalogue
+    this.canvas.addEventListener('dragover', (e) => {e.preventDefault();});
+    this.canvas.addEventListener('drop', (e) => {
+      const data = e.dataTransfer.getData('application/json');
+      const blockData = JSON.parse(data);
+      const x = (e.clientX - this.translateX) / this.zoom;
+      const y = (e.clientY - this.translateY) / this.zoom;
+      this.insertNodeFromCatalogue(blockData, x, y);
+      console.log('Block data:', blockData);
+    });
   }
 
   updateGrid() {
@@ -156,5 +164,23 @@ export class Canvas {
     const scaleText = document.getElementById("scale-text");
     // Update the text content with the current zoom percentage
     scaleText.textContent = `Scale: ${Math.round(this.zoom * 100)}%`;
+  }
+
+  insertNodeFromCatalogue(blockData, x, y) {
+    const node = document.createElement("div");
+    node.className = "node";
+    node.innerHTML = `<img src="${blockData.blockImage}" alt="${blockData.name}" draggable="false">`;
+    node.style.left = `${x}px`;
+    node.style.top = `${y}px`;
+    this.canvas.appendChild(node);
+
+    node.addEventListener("mousedown", e => {
+      if (e.button !== 0) return; // Make sure the canvas only moves with the left mouse button
+      this.draggedNode = node;
+      this.offsetX = e.offsetX * this.zoom;
+      this.offsetY = e.offsetY * this.zoom;
+      this.viewport.style.cursor = "grabbing";
+      e.stopPropagation();
+    });
   }
 }

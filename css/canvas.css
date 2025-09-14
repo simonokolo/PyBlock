@@ -27,9 +27,6 @@
 .node {
   width: 120px;
   height: 60px;
-  background: #2600ff;
-  border: 1px solid #6e005c;
-  border-radius: 8px;
   color: white;
   position: absolute;
   user-select: none;
