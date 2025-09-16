@@ -1,0 +1,27 @@
+#livecode {
+  position: fixed;
+  top: 30px;
+  bottom: 30px;
+  width: 450px;
+  border-radius: 8px;
+  z-index: 5;
+  right: 20px;
+  background: rgba(104, 104, 104, 0.068);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5.1px);
+  -webkit-backdrop-filter: blur(5.1px);
+  border: 1px solid rgba(0, 0, 0, 0.24);
+}
+
+#livecode-inner {
+  position: absolute;
+  background-color: red;
+  top: 7px;
+  right: 7px;
+  left: 7px;
+  bottom: 7px;
+  border-radius: 8px;
+
+}
+

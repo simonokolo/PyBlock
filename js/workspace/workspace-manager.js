@@ -1,16 +1,18 @@
 import { Canvas } from "./canvas";
 import { Catalogue } from "./catalogue";
+import { LiveCode } from "./livecode";
 
 // WorkspaceManager class to manage the workspace and its components
 class WorkspaceManager {
     constructor() { 
-        this.initializeComponents();
+        this.initialiseComponents();
     }
 
     // Initializes the components of the workspace
-    initializeComponents() {
+    initialiseComponents() {
         this.canvas = new Canvas('viewport')
         this.catalogue = new Catalogue('catalogue')
+        this.livecode = new LiveCode('livecode')
     }
 }
 
