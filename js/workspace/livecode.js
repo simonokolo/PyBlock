@@ -3,7 +3,7 @@ export class LiveCode {
     this.container = document.getElementById(containerId);
     this.setupViewport();
     this.setupEventListeners();
-    this.switchTabs('translation')
+    this.switchTabs('translation');
   }
 
   setupViewport() {
@@ -62,4 +62,10 @@ export class LiveCode {
       });
     });
   }
+
+  updateLiveCodeTranslation(pythonCode) {
+    this.translationTab.innerHTML = pythonCode
+  }
+  
 }
+

@@ -2,21 +2,38 @@ import { Canvas } from "./canvas";
 import { Catalogue } from "./catalogue";
 import { LiveCode } from "./livecode";
 
+import { translateBlockCode } from "../utils/translator"
+import { executePythonCode } from "../utils/pyodide"
+
 // WorkspaceManager class to manage the workspace and its components
 class WorkspaceManager {
-    constructor() { 
-        this.initialiseComponents();
-    }
+  constructor() {
+    this.initialiseComponents();
+    this.translateCode();
+  }
 
-    // Initializes the components of the workspace
-    initialiseComponents() {
-        this.canvas = new Canvas('viewport')
-        this.catalogue = new Catalogue('catalogue')
-        this.livecode = new LiveCode('livecode')
+  // Initializes the components of the workspace
+  initialiseComponents() {
+    this.canvas = new Canvas('viewport')
+    this.catalogue = new Catalogue('catalogue')
+    this.livecode = new LiveCode('livecode')
+  }
+
+  // Translates block code to Python and executes it
+  async translateCode() {
+    const translatedPythonCode = translateBlockCode();
+    this.livecode.updateLiveCodeTranslation(translatedPythonCode)
+    try {
+      // Execute the translated Python code using Pyodide
+      const pythonExecutionResult = await executePythonCode(translatedPythonCode);
+      console.log(pythonExecutionResult)
+    } catch (e) {
+      console.error(e)
     }
+  }
 }
 
 // Initialize the WorkspaceManager when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new WorkspaceManager();
+  new WorkspaceManager();
 })
