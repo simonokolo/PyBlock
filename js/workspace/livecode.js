@@ -17,7 +17,9 @@ export class LiveCode {
               </div>
             </header>
             <div id="tab-content">
-              <article id="translation">Tab1</article>
+              <article id="translation">
+                <div id="translation-content"></div>
+              </article>
               <article id="output">Tab2</article>
             </div>
           </div>
@@ -64,8 +66,21 @@ export class LiveCode {
   }
 
   updateLiveCodeTranslation(pythonCode) {
-    this.translationTab.innerHTML = pythonCode
+    pythonCode = pythonCode.split("\|");
+    let currentLine = "";
+    // Loop through each statement
+    for (let statement in pythonCode) {
+      currentLine = pythonCode[statement].replace(">", "&nbsp; &nbsp;")
+      // Create a new div for the statement
+      const newDiv = document.createElement("div");
+      newDiv.innerHTML = currentLine;
+      newDiv.classList.add("code-line");
+      document.getElementById('translation-content').appendChild(newDiv);
+    };
   }
-  
+
+  updateOutput(output) {
+    this.outputTab.innerHTML = output.replace(/\n/g, "<br>");
+  }
 }
 

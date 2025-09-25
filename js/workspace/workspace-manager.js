@@ -23,6 +23,7 @@ class WorkspaceManager {
   async translateCode() {
     const translatedPythonCode = translateBlockCode();
     this.livecode.updateLiveCodeTranslation(translatedPythonCode)
+    this.livecode.updateOutput("Running...")
     try {
       // Execute the translated Python code using Pyodide
       const pythonExecutionResult = await executePythonCode(translatedPythonCode);

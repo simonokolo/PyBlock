@@ -1,6 +1,7 @@
 import { loadPyodide, version as pyodideVersion } from "pyodide";
 
 let pyodideInstance;
+let formattedScript;
 
 async function initPyodide() {
   if (!pyodideInstance) {
@@ -11,8 +12,15 @@ async function initPyodide() {
   return pyodideInstance;
 }
 
+function formatPythonFromTranslator(script) {
+  // Replace '|' with spaces to ensure proper formatting
+  script = script.replace(/\|>/g, " ");
+  return script
+}
+
 // Function to execute Python code using Pyodide
 export async function executePythonCode(script) {
+  formattedScript = formatPythonFromTranslator(script);
   const pyodide = await initPyodide();
 
   // Capture stdout and stderr
@@ -20,7 +28,7 @@ export async function executePythonCode(script) {
   pyodide.setStdout({
     batched: (msg) => {
       msg.split("\n").forEach(line => {
-        if (line) console.log(line);    // Shouldnt be getting printed here
+        if (line) output += line + "\n";   // collect instead of logging
       });
     }
   });
@@ -28,6 +36,9 @@ export async function executePythonCode(script) {
   pyodide.setStderr({ batched: (err) => { output += "\n" + err; } });
 
   // Run the Python code
-  await pyodide.runPythonAsync(script);
+  const response = await fetch('../js/utils/main.py');
+  const pyFileText = await response.text();
+
+  await pyodide.runPythonAsync(pyFileText);
   return output.trim();
 }

@@ -25,6 +25,21 @@
   border-radius: 8px;
 }
 
+#translation-content {
+  counter-reset: section;
+  padding: 10px;
+  font-family: 'Consolas', monospace;
+  font-size: 15px;
+  color: #D4D4D4;
+  white-space: pre-wrap;
+}
+
+.code-line::before {
+  color: #667187;
+  counter-increment: section;
+  content: counter(section) "  ";
+}
+
 header {
   padding: 0;
   margin: 0;
