@@ -66,14 +66,12 @@ export class LiveCode {
   }
 
   updateLiveCodeTranslation(pythonCode) {
-    pythonCode = pythonCode.split("\|");
-    let currentLine = "";
+    pythonCode = pythonCode.split("\n");
     // Loop through each statement
     for (let statement in pythonCode) {
-      currentLine = pythonCode[statement].replace(">", "&nbsp; &nbsp;")
       // Create a new div for the statement
       const newDiv = document.createElement("div");
-      newDiv.innerHTML = currentLine;
+      newDiv.innerHTML = pythonCode[statement];
       newDiv.classList.add("code-line");
       document.getElementById('translation-content').appendChild(newDiv);
     };

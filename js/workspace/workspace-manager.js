@@ -21,12 +21,14 @@ class WorkspaceManager {
 
   // Translates block code to Python and executes it
   async translateCode() {
-    const translatedPythonCode = translateBlockCode();
-    this.livecode.updateLiveCodeTranslation(translatedPythonCode)
+    const response = await fetch('../js/utils/main.py');
+    const pyFileText = await response.text(); // Returns the python code from main.py
+
+    this.livecode.updateLiveCodeTranslation(pyFileText) // Update the LiveCode
     this.livecode.updateOutput("Running...")
     try {
       // Execute the translated Python code using Pyodide
-      const pythonExecutionResult = await executePythonCode(translatedPythonCode);
+      const pythonExecutionResult = await executePythonCode(pyFileText); // Execute python file
       console.log(pythonExecutionResult)
     } catch (e) {
       console.error(e)
