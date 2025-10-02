@@ -1,7 +1,5 @@
 import { checkAuthForAccountSettings, updateUserProfile, updateUserPassword, reauthenticateUser, generateDeletionCode, deleteAccount } from './auth.js';
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
 	checkAuthForAccountSettings();
 	const code = generateDeletionCode();
@@ -15,9 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Make close button work on popup
 	closeButton.addEventListener('click', hidePopup);
-
-
-
+	
 	// Add event listener for back button
 	document.getElementById('back-button').addEventListener('click', function() { 
 			window.location.href = "workspace.html" 
@@ -45,5 +41,3 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	})
 });
-
-
