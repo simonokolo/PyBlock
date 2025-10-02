@@ -1,7 +1,6 @@
 import { loadPyodide, version as pyodideVersion } from "pyodide";
 
 let pyodideInstance;
-let formattedScript;
 
 async function initPyodide() {
   if (!pyodideInstance) {
@@ -12,12 +11,10 @@ async function initPyodide() {
   return pyodideInstance;
 }
 
-
-
 // Function to execute Python code using Pyodide
 export async function executePythonCode(script) {
   const pyodide = await initPyodide();
-
+  
   // Capture stdout and stderr
   let output = "";
   pyodide.setStdout({

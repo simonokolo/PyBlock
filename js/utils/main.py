@@ -1,4 +1,2 @@
-for i in range (10):
-  print (i)
-
-print("loop complete")
+for x in range(0,10):
+  print(x)
