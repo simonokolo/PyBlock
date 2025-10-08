@@ -1,9 +1,9 @@
-import { Canvas } from "./canvas";
-import { Catalogue } from "./catalogue";
-import { LiveCode } from "./livecode";
+import { Canvas } from "/src/workspace/canvas.js";
+import { Catalogue } from "/src/workspace/catalogue.js";
+import { LiveCode } from "/src/workspace/livecode.js";
 
-import { translateBlockCode } from "../utils/translator"
-import { executePythonCode } from "../utils/pyodide"
+import { translateBlockCode } from "/src/utils/translator.js"
+import { executePythonCode } from "/src/utils/pyodide.js"
 
 // WorkspaceManager class to manage the workspace and its components
 class WorkspaceManager {
@@ -21,7 +21,7 @@ class WorkspaceManager {
 
   // Translates block code to Python and executes it
   async translateCode() {
-    const response = await fetch('../js/utils/main.py');
+    const response = await fetch('/data/main.py');
     const pyFileText = await response.text(); // Returns the python code from main.py
 
     this.livecode.updateLiveCodeTranslation(pyFileText) // Update the LiveCode
@@ -37,6 +37,6 @@ class WorkspaceManager {
 }
 
 // Initialize the WorkspaceManager when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
   new WorkspaceManager();
 })

@@ -49,8 +49,8 @@ export class Catalogue {
   async fetchBlocks() {
     try {
       // Fetch the JSON file
-      const response = await fetch('../data/blocks.json');
-      if (!response.ok) { throw new Error(`Response: ${response.status}`);}
+      const response = await fetch('/data/blocks.json');
+      if (!response.ok) { throw new Error(`Response: ${response.status}`);} 
       // Parse the JSON data
       const result = await response.json()
       this.blocks = result.blocks

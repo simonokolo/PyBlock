@@ -1,4 +1,4 @@
-import { checkAuthForAccountSettings, updateUserProfile, updateUserPassword, reauthenticateUser, generateDeletionCode, deleteAccount } from './auth.js';
+import { checkAuthForAccountSettings, updateUserProfile, updateUserPassword, reauthenticateUser, generateDeletionCode, deleteAccount } from '/src/auth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 	checkAuthForAccountSettings();
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	
 	// Add event listener for back button
 	document.getElementById('back-button').addEventListener('click', function() { 
-			window.location.href = "workspace.html" 
+			window.location.href = "/pages/workspace.html" 
 	})
 
 	// Event listener for updating the users displayName

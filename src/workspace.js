@@ -1,4 +1,4 @@
-import { checkAuthForWorkspace, signUserOut } from './auth.js';
+import { checkAuthForWorkspace, signUserOut } from '/src/auth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Check for sign-in result
@@ -9,6 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add event listener for account settings
     document.getElementById('profile-settings-button').addEventListener('click', function() {
-        window.location.href = "account-settings.html"
+        window.location.href = "/pages/account-settings.html"
     })
 })

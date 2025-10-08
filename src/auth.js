@@ -11,8 +11,8 @@ import
     signOut
 } from "firebase/auth";
 
-import { auth, provider } from './firebase-config.js';
-import { digestMessage } from './utils/hash.js'
+import { auth, provider } from '/src/firebase-config.js';
+import { digestMessage } from '/src/utils/hash.js'
 
 /**
  * ---------------------------
@@ -234,4 +234,3 @@ export async function deleteAccount() {
     }
   })
 }
-

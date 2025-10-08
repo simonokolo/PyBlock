@@ -1,5 +1,5 @@
-import './firebase-config.js';
-import { handleSignIn, handleSignUp, handleGoogleSignIn, checkAuthForIndex, sendPasswordReset } from './auth.js';
+import '/src/firebase-config.js';
+import { handleSignIn, handleSignUp, handleGoogleSignIn, checkAuthForIndex, sendPasswordReset } from '/src/auth.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,6 +18,3 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add event listener to the password reset button
     document.getElementById('forgot-password-form').addEventListener('submit', sendPasswordReset);
 });
-
-
-

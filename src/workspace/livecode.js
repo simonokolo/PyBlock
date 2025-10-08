@@ -81,4 +81,3 @@ export class LiveCode {
     this.outputTab.innerHTML = output.replace(/\n/g, "<br>");
   }
 }
-
