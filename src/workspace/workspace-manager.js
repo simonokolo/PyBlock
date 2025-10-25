@@ -3,7 +3,7 @@ import { Catalogue } from "/src/workspace/catalogue.js";
 import { LiveCode } from "/src/workspace/livecode.js";
 
 import { translateBlockCode } from "/src/utils/translator.js"
-import { executePythonCode } from "/src/utils/pyodide.js"
+import { initPyodideWorker, executePythonCode } from "/src/utils/pyodide.js";
 
 // WorkspaceManager class to manage the workspace and its components
 class WorkspaceManager {
@@ -24,20 +24,28 @@ class WorkspaceManager {
     const response = await fetch('/data/main.py');
     const pyFileText = await response.text(); // Returns the python code from main.py
 
-    this.livecode.updateLiveCodeTranslation(pyFileText) // Update the LiveCode
-    this.livecode.updateOutput("Running...")
+    this.livecode.updateLiveCodeTranslation(pyFileText); // Update the LiveCode
+    this.livecode.updateOutput("Running...");
+
     try {
       // Execute the translated Python code using Pyodide
       const pythonExecutionResult = await executePythonCode(pyFileText); // Execute python file
-      console.log(pythonExecutionResult)
-      this.livecode.updateOutput(pythonExecutionResult)
+
+      // Update the output tab
+      this.livecode.updateOutput(pythonExecutionResult || "(no output)");
+      this.livecode.switchTabs("output"); // optional: automatically show OUTPUT tab
     } catch (e) {
-      console.error(e)
+      console.error(e);
+      this.livecode.updateOutput(`Error:\n${e}`);
+      this.livecode.switchTabs("output");
     }
   }
 }
 
 // Initialize the WorkspaceManager when the DOM is fully loaded
-window.addEventListener('DOMContentLoaded', () => {
-  new WorkspaceManager();
-})
+window.addEventListener("DOMContentLoaded", async () => {
+  await initPyodideWorker(); // Load Pyodide in background thread
+  console.log("Pyodide ready!");
+
+  new WorkspaceManager(); // rest of your app
+});
