@@ -1,24 +1,28 @@
 import { loadPyodide, version as pyodideVersion } from "pyodide";
 
 let pyodideInstance;
-let formattedScript;
 
 async function initPyodide() {
   if (!pyodideInstance) {
     pyodideInstance = await loadPyodide({
       indexURL: `https://cdn.jsdelivr.net/pyodide/v${pyodideVersion}/full/`,
     });
+
+    // Override the input() function in Python
+    pyodideInstance.globals.set("js_input", pyodideInput);
   }
   return pyodideInstance;
 }
 
+// Synchronous input handler
+function pyodideInput(promptText = "") {
+  const userInput = window.prompt(promptText || "Enter a value:");
+  return userInput ?? "";
+}
 
-
-// Function to execute Python code using Pyodide
 export async function executePythonCode(script) {
   const pyodide = await initPyodide();
 
-  // Capture stdout and stderr
   let output = "";
   pyodide.setStdout({
     batched: (msg) => {
@@ -29,6 +33,13 @@ export async function executePythonCode(script) {
   });
   pyodide.setStderr({ batched: (err) => { output += "\n" + err; } });
 
-  await pyodide.runPythonAsync(script);
+  // Enter js_input into Python builtins
+  const wrappedScript = `
+import builtins
+builtins.input = js_input
+${script}
+`;
+
+  await pyodide.runPythonAsync(wrappedScript);
   return output.trim();
 }

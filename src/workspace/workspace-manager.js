@@ -30,6 +30,7 @@ class WorkspaceManager {
       // Execute the translated Python code using Pyodide
       const pythonExecutionResult = await executePythonCode(pyFileText); // Execute python file
       console.log(pythonExecutionResult)
+      this.livecode.updateOutput(pythonExecutionResult)
     } catch (e) {
       console.error(e)
     }
