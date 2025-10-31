@@ -81,12 +81,8 @@ export class Catalogue {
 
         // Drag start event to set the data being dragged
         div.addEventListener('dragstart', (e) => {
-          const blockData = {
-            name: block.name,
-            blockImage: block.blockImage
-          };
           // Set the drag data as a JSON string
-          e.dataTransfer.setData('application/json', JSON.stringify(blockData));
+          e.dataTransfer.setData('application/json', JSON.stringify(block));
         });
 
         // Append the block div to the catalogue content

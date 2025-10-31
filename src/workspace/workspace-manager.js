@@ -2,6 +2,7 @@ import { Canvas } from "/src/workspace/canvas.js";
 import { Catalogue } from "/src/workspace/catalogue.js";
 import { LiveCode } from "/src/workspace/livecode.js";
 
+
 import { translateBlockCode } from "/src/utils/translator.js"
 import { initPyodideWorker, executePythonCode } from "/src/utils/pyodide.js";
 

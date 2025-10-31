@@ -1,3 +1,5 @@
+import { Block } from "/src/block.js";
+
 export class Canvas {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
@@ -190,13 +192,13 @@ export class Canvas {
     // Drag and drop from catalogue
     this.canvas.addEventListener('dragover', (e) => {e.preventDefault();});
     this.canvas.addEventListener('drop', (e) => {
-      const data = e.dataTransfer.getData('application/json');
-      const blockData = JSON.parse(data);
+      const blockResult = e.dataTransfer.getData('application/json');
+      const block = JSON.parse(blockResult);
       const x = (e.clientX - this.translateX) / this.zoom;
       const y = (e.clientY - this.translateY) / this.zoom;
-      this.insertNodeFromCatalogue(blockData, x, y);
-      console.log('Block data:', blockData);
+      this.insertNodeFromCatalogue(block, x, y);
     });
+    
   }
 
   updateGrid() {
@@ -220,20 +222,27 @@ export class Canvas {
   }
 
   insertNodeFromCatalogue(blockData, x, y) {
-    const node = document.createElement("div");
-    node.className = "node";
-    node.innerHTML = `<img src="${blockData.blockImage}" alt="${blockData.name}" draggable="false">`;
-    node.style.left = `${x}px`;
-    node.style.top = `${y}px`;
-    this.canvas.appendChild(node);
+    // Create a new block instance
+    const block = new Block(blockData);
 
-    node.addEventListener("mousedown", e => {
-      if (e.button !== 0) return; // Make sure the canvas only moves with the left mouse button
-      this.draggedNode = node;
+    // Get the HTML element of the block
+    const el = block.element;
+    el.classList.add("node");
+    el.style.position = "absolute";
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+
+    // Add mousedown listener for dragging the node
+    el.addEventListener("mousedown", e => {
+      if (e.button !== 0) return;
+      this.draggedNode = el;
       this.offsetX = e.offsetX * this.zoom;
       this.offsetY = e.offsetY * this.zoom;
       this.viewport.style.cursor = "grabbing";
       e.stopPropagation();
     });
+
+    // Append the block element to the canvas
+    this.canvas.appendChild(el);
   }
 }
