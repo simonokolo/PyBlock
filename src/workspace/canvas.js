@@ -87,39 +87,92 @@ export class Canvas {
 
     //---------[EVENT LISTENERS FOR CANVAS MOVEMENT]---------//
 
-    // Canvas zooming
+    // Canvas zooming AND panning with trackpad
     this.viewport.addEventListener("wheel", e => {
-      e.preventDefault(); // Prevent page scrolling
+      e.preventDefault();
       
-      const oldZoom = this.zoom;
-      
-      if (e.deltaY < 0) {
-        this.zoom = Math.min(this.zoom + this.zoomStep, this.zoomMax)
-      } else {
-        this.zoom = Math.max(this.zoom - this.zoomStep, this.zoomMin)
-      }
-      
-      // Calculate the point on the canvas that's under the mouse cursor
-      const canvasPointX = (e.clientX - this.translateX) / oldZoom;
-      const canvasPointY = (e.clientY - this.translateY) / oldZoom;
-      
-      // After zooming, calculate where that same canvas point should be to keep it under the mouse cursor
-      this.translateX = e.clientX - (canvasPointX * this.zoom);
-      this.translateY = e.clientY - (canvasPointY * this.zoom);
-      
-      // Apply clamping
-      if (this.translateX > 0) {this.translateX = 0;}
-      if (this.translateY > 0) {this.translateY = 0;}
+      // Check if this is a pinch-to-zoom gesture
+      // Pinch zoom always comes with ctrlKey on trackpads
+      if (e.ctrlKey) {
+        // This is zoom (either trackpad pinch or Ctrl+wheel)
+        const oldZoom = this.zoom;
+        
+        // Use smaller zoom step for smoother pinch zooming
+        const delta = -e.deltaY;
+        const zoomFactor = delta > 0 ? 1.02 : 0.98;
+        
+        this.zoom = Math.max(this.zoomMin, Math.min(this.zoomMax, this.zoom * zoomFactor));
+        
+        // Calculate the point on the canvas that's under the mouse cursor
+        const canvasPointX = (e.clientX - this.translateX) / oldZoom;
+        const canvasPointY = (e.clientY - this.translateY) / oldZoom;
+        
+        // After zooming, calculate where that same canvas point should be to keep it under the mouse cursor
+        this.translateX = e.clientX - (canvasPointX * this.zoom);
+        this.translateY = e.clientY - (canvasPointY * this.zoom);
+        
+        // Apply clamping
+        if (this.translateX > 0) {this.translateX = 0;}
+        if (this.translateY > 0) {this.translateY = 0;}
 
-      if (this.translateX < this.viewport.clientWidth - this.canvas.clientWidth * this.zoom) {
-        this.translateX = this.viewport.clientWidth - this.canvas.clientWidth * this.zoom;
+        if (this.translateX < this.viewport.clientWidth - this.canvas.clientWidth * this.zoom) {
+          this.translateX = this.viewport.clientWidth - this.canvas.clientWidth * this.zoom;
+        }
+        
+        this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
+        this.updateZoomText();
+        this.updateGrid();
       }
-      
-      // Apply the new transform
-      this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
-      this.updateZoomText();
-      this.updateGrid();
-    })
+      // Two-finger swipe/pan or vertical scroll on trackpad
+      else if (e.deltaMode === 0) {
+        // deltaMode 0 = trackpad
+        // panning
+        this.translateX -= e.deltaX;
+        this.translateY -= e.deltaY;
+        
+        // Make sure canvas is always in the negative to zero range
+        const minX = this.viewport.clientWidth - (8000 * this.zoom);
+        const minY = this.viewport.clientHeight - (5000 * this.zoom);
+
+        // Clamp the canvas
+        this.translateX = Math.max(minX, Math.min(0, this.translateX));
+        this.translateY = Math.max(minY, Math.min(0, this.translateY));
+        
+        this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
+      }
+
+      // Mouse wheel scroll (deltaMode 1 or 2)
+      else {
+        // zooming
+        const oldZoom = this.zoom;
+        
+        if (e.deltaY < 0) {
+          this.zoom = Math.min(this.zoom + this.zoomStep, this.zoomMax);
+        } else {
+          this.zoom = Math.max(this.zoom - this.zoomStep, this.zoomMin);
+        }
+        
+        // Calculate the point on the canvas under the mouse cursor
+        const canvasPointX = (e.clientX - this.translateX) / oldZoom;
+        const canvasPointY = (e.clientY - this.translateY) / oldZoom;
+        
+        // After zooming, calculate where that same canvas point should be to keep it under the mouse cursor
+        this.translateX = e.clientX - (canvasPointX * this.zoom);
+        this.translateY = e.clientY - (canvasPointY * this.zoom);
+        
+        // Apply clamping
+        if (this.translateX > 0) {this.translateX = 0;}
+        if (this.translateY > 0) {this.translateY = 0;}
+
+        if (this.translateX < this.viewport.clientWidth - this.canvas.clientWidth * this.zoom) {
+          this.translateX = this.viewport.clientWidth - this.canvas.clientWidth * this.zoom;
+        }
+        
+        this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
+        this.updateZoomText();
+        this.updateGrid();
+      }
+    }, { passive: false });
 
     //---------[EVENT LISTENERS NODE MOVEMENT]---------//
 
