@@ -9,6 +9,7 @@ import { initPyodideWorker, executePythonCode } from "/src/utils/pyodide.js";
 class WorkspaceManager {
   constructor() {
     this.initialiseComponents();
+    this.setupLiveCodeListeners();
     this.translateCode();
   }
 
@@ -19,26 +20,45 @@ class WorkspaceManager {
     this.livecode = new LiveCode('livecode')
   }
 
-  // Translates block code to Python and executes it
-  async translateCode() {
-    const response = await fetch('/data/main.py');
-    const pyFileText = await response.text(); // Returns the python code from main.py
+  // Create event listeners for execute and translate
+  setupLiveCodeListeners() {
+    this.livecode.onExecute(() => {
+      console.log("Execute button clicked!");
+      this.executeCode(); // Call execution logic
+    });
 
-    this.livecode.updateLiveCodeTranslation(pyFileText); // Update the LiveCode
+    this.livecode.onTranslate(() => {
+      console.log("Translate button clicked!");
+      this.translateCode(); // Call translation logic
+    });
+  }
+
+  // Execute translated python code
+  async executeCode() {
+    // Get the current Python code
+    const response = await fetch('/data/main.py');
+    const pyFileText = await response.text();
+
     this.livecode.updateOutput("Running...");
 
     try {
-      // Execute the translated Python code using Pyodide
-      const pythonExecutionResult = await executePythonCode(pyFileText); // Execute python file
-
-      // Update the output tab
+      // Execute the Python code using Pyodide
+      const pythonExecutionResult = await executePythonCode(pyFileText);
       this.livecode.updateOutput(pythonExecutionResult || "(no output)");
-      this.livecode.switchTabs("output"); // optional: automatically show OUTPUT tab
+      this.livecode.switchTabs("output");
     } catch (e) {
       console.error(e);
       this.livecode.updateOutput(`Error:\n${e}`);
       this.livecode.switchTabs("output");
     }
+  }
+
+  // Translates block code
+  async translateCode() {
+    const response = await fetch('/data/main.py');
+    const pyFileText = await response.text();
+
+    this.livecode.updateLiveCodeTranslation(pyFileText);
   }
 }
 

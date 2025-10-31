@@ -19,8 +19,12 @@ export class LiveCode {
             <div id="tab-content">
               <article id="translation">
                 <div id="translation-content"></div>
+                <div id="execution">
+                  <button class="execution-button" id="execute">Run --></button>
+                  <button class="execution-button" id="translate">Translate</button>
+                </div>
               </article>
-              <article id="output">Tab2</article>
+              <article id="output"></article>
             </div>
           </div>
         </section>
@@ -31,12 +35,15 @@ export class LiveCode {
 
     this.outputTab = document.getElementById('output')
     this.outputTabButton = document.getElementById('tab2-button')
+
+    this.executeButton = document.getElementById('execute')
+    this.translateButton = document.getElementById('translate')
   }
   // Logic to switch between tabs
   switchTabs(tab) {
     // Show the selected tab content and update button
     if (tab === 'translation') {
-      this.translationTab.style.display = 'block';
+      this.translationTab.style.display = 'flex'; // Change from 'block' to 'flex'
       this.translationTab.classList.add('active');
       this.translationTabButton.style.backgroundColor = '#16161B';
 
@@ -48,7 +55,7 @@ export class LiveCode {
       this.translationTab.classList.remove('active')
       this.translationTabButton.style.backgroundColor = '#2C3138';
 
-      this.outputTab.style.display = 'block';
+      this.outputTab.style.display = 'flex'; // Change from 'block' to 'flex'
       this.outputTab.classList.add('active')
       this.outputTabButton.style.backgroundColor = '#16161B';
     }
@@ -65,7 +72,18 @@ export class LiveCode {
     });
   }
 
+  // Expose execute and translate event listeners
+  onExecute(callback) {
+    this.executeButton.addEventListener('click', callback);
+  }
+
+  onTranslate(callback) {
+    this.translateButton.addEventListener('click', callback);
+  }
+
   updateLiveCodeTranslation(pythonCode) {
+    // Clear existing content
+    document.getElementById('translation-content').innerHTML = '';
     pythonCode = pythonCode.split("\n");
     // Loop through each statement
     for (let statement in pythonCode) {
