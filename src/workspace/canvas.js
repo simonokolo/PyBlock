@@ -53,33 +53,6 @@ export class Canvas {
       }
     });
 
-    this.viewport.addEventListener("mousemove", e => {
-      // only pan when mouse is down
-      if (this.isPanning) {
-        this.translateX = e.clientX - this.startX;
-        this.translateY = e.clientY - this.startY;
-
-        // Make sure canvas is always in the negative to zero range
-        const minX = this.viewport.clientWidth - (8000 * this.zoom);
-        const minY = this.viewport.clientHeight - (5000 * this.zoom);
-
-        // Clamp the canvas
-        this.translateX = Math.max(minX, Math.min(0, this.translateX));
-        this.translateY = Math.max(minY, Math.min(0, this.translateY));
-                
-        this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
-      }
-
-      // move node if dragging
-      if(this.draggedNode) {
-        // move the node
-        let x = e.clientX - this.offsetX - this.translateX;
-        let y = e.clientY - this.offsetY - this.translateY;
-        this.draggedNode.style.left = `${x / this.zoom}px`;
-        this.draggedNode.style.top = `${y / this.zoom}px`;
-      }
-    });
-
     // stop panning on mouse up
     this.viewport.addEventListener("mouseup", () => {
       this.isPanning = false;
@@ -178,16 +151,34 @@ export class Canvas {
 
     //---------[EVENT LISTENERS NODE MOVEMENT]---------//
 
-    this.canvas.querySelectorAll(".node").forEach(node => {
-      node.addEventListener("mousedown", e => {
-        if (e.button !== 0) return; // Make sure the canvas only moves with the left mouse button
-        this.draggedNode = node;
-        this.offsetX = e.offsetX * this.zoom;
-        this.offsetY = e.offsetY * this.zoom;
-        this.viewport.style.cursor = "grabbing";
-        e.stopPropagation();
-      });
-    }) 
+    this.viewport.addEventListener("mousemove", e => {
+      // only pan when mouse is down
+      if (this.isPanning) {
+        this.translateX = e.clientX - this.startX;
+        this.translateY = e.clientY - this.startY;
+
+        // Make sure canvas is always in the negative to zero range
+        const minX = this.viewport.clientWidth - (8000 * this.zoom);
+        const minY = this.viewport.clientHeight - (5000 * this.zoom);
+
+        // Clamp the canvas
+        this.translateX = Math.max(minX, Math.min(0, this.translateX));
+        this.translateY = Math.max(minY, Math.min(0, this.translateY));
+                
+        this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
+      }
+
+      // move node if dragging
+      if (this.draggedNode) {
+        // pointer pos (viewport) minus canvas translation (viewport) minus unscaled offset
+        const x = e.clientX - this.translateX - this.offsetX;
+        const y = e.clientY - this.translateY - this.offsetY;
+
+        // convert back into canvas (unscaled) coords
+        this.draggedNode.style.left = `${x / this.zoom}px`;
+        this.draggedNode.style.top  = `${y / this.zoom}px`;
+      }
+    });
 
     // Drag and drop from catalogue
     this.canvas.addEventListener('dragover', (e) => {e.preventDefault();});
@@ -197,8 +188,7 @@ export class Canvas {
       const x = (e.clientX - this.translateX) / this.zoom;
       const y = (e.clientY - this.translateY) / this.zoom;
       this.insertNodeFromCatalogue(block, x, y);
-    });
-    
+    });    
   }
 
   updateGrid() {
@@ -234,13 +224,20 @@ export class Canvas {
 
     // Add mousedown listener for dragging the node
     el.addEventListener("mousedown", e => {
-      if (e.button !== 0) return;
-      this.draggedNode = el;
-      this.offsetX = e.offsetX * this.zoom;
-      this.offsetY = e.offsetY * this.zoom;
-      this.viewport.style.cursor = "grabbing";
-      e.stopPropagation();
-    });
+    if (e.button !== 0) return;
+    // don't start a drag when interacting with form controls inside the node
+    if (e.target.matches('input, textarea, select, button')) return;
+
+    this.draggedNode = el;
+
+    // compute offset from the node's rect (in *viewport* coords)
+    const rect = el.getBoundingClientRect();
+    this.offsetX = e.clientX - rect.left;
+    this.offsetY = e.clientY - rect.top;
+
+    this.viewport.style.cursor = "grabbing";
+    e.stopPropagation();
+  });
 
     // Append the block element to the canvas
     this.canvas.appendChild(el);

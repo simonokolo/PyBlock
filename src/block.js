@@ -3,7 +3,6 @@ export class Block {
     this.blockData = blockData;
     this.element = this.createElement()
   }
-  
 
   // Creates the HTML element for the block
   createElement() {
