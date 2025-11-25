@@ -1,3 +1,6 @@
+//TODO -----------
+// - Make the livecode tab resizable
+
 export class LiveCode {
   constructor(containerId) {
     this.container = document.getElementById(containerId);

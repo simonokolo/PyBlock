@@ -21,6 +21,11 @@ export class Canvas {
     this.zoomStep = 0.1;
     this.zoomMin = 0.3;
     this.zoomMax = 2;
+
+    this.isDragging = false;
+    this.dragStartX = 0;
+    this.dragStartY = 0;
+    
   }
 
   setupViewport() {
@@ -39,6 +44,7 @@ export class Canvas {
   }
 
   setupEventListeners() {
+    let selectionBox = null;
 
     //---------[EVENT LISTENERS FOR CANVAS MOVEMENT]---------//
 
@@ -53,14 +59,21 @@ export class Canvas {
       }
     });
 
-    // stop panning on mouse up
+    // Stop panning and remove selection box on mouse up
     this.viewport.addEventListener("mouseup", () => {
+      this.isDragging = false;
+
+      // Remove selection box
+      if (selectionBox) {
+        selectionBox.remove();
+        selectionBox = null;
+      }
+
+      // stop panning
       this.isPanning = false;
       this.viewport.style.cursor = "default";
       this.draggedNode = null;
     });
-
-    //---------[EVENT LISTENERS FOR CANVAS MOVEMENT]---------//
 
     // Canvas zooming AND panning with trackpad
     this.viewport.addEventListener("wheel", e => {
@@ -149,6 +162,27 @@ export class Canvas {
       }
     }, { passive: false });
 
+    //---------[EVENT LISTENERS DRAG]---------//
+
+    // Start selection box on left mouse down
+    this.viewport.addEventListener("mousedown", (e) => {
+      if (e.button === 0) {
+        
+        this.dragStartX = e.clientX;
+        this.dragStartY = e.clientY;
+        this.isDragging = true;
+
+        // Create the box
+        selectionBox = document.createElement("div");
+        selectionBox.classList.add("selection-box");
+        document.body.appendChild(selectionBox);
+
+        // Position it initially
+        selectionBox.style.left = `${this.dragStartX}px`;
+        selectionBox.style.top = `${this.dragStartY}px`;
+      }
+    })
+
     //---------[EVENT LISTENERS NODE MOVEMENT]---------//
 
     this.viewport.addEventListener("mousemove", e => {
@@ -166,6 +200,19 @@ export class Canvas {
         this.translateY = Math.max(minY, Math.min(0, this.translateY));
                 
         this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
+      }
+
+      // Create a dragging (selecting) box while dragging is true
+      // [Inside of mousemove to update position]
+      if (this.isDragging) {
+        const dragWidth = this.dragStartX - e.clientX
+        const dragHeight = this.dragStartY - e.clientY
+
+        // Create the box dimensions
+        selectionBox.style.left = `${Math.min(e.clientX, this.dragStartX)}px`;
+        selectionBox.style.top = `${Math.min(e.clientY, this.dragStartY)}px`;
+        selectionBox.style.width = `${Math.abs(dragWidth)}px`;
+        selectionBox.style.height = `${Math.abs(dragHeight)}px`;
       }
 
       // move node if dragging

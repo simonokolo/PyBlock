@@ -2,6 +2,8 @@ export class Block {
   constructor(blockData) {
     this.blockData = blockData;
     this.element = this.createElement()
+    this.setupEventListeners()
+    this.hovered = false;
   }
 
   // Creates the HTML element for the block
@@ -21,7 +23,27 @@ export class Block {
         ${needsInput ? '<input type="text" placeholder="value">' : ''}
       </div>
     `;
-    
     return div;
   }
+
+  setupEventListeners() {
+    // Make the element focusable
+    this.element.tabIndex = 0;
+
+    this.element.addEventListener('mouseenter', () => {
+      this.hovered = true;      
+    });
+
+    this.element.addEventListener('mouseleave', () => {
+      this.hovered = false;
+    });
+
+    // Delete node
+    this.element.addEventListener('keydown', (event) => {
+      if (event.key === 'Backspace') {
+        this.element.remove();
+      }
+    });
+  };
 }
+

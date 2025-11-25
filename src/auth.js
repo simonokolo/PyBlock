@@ -18,7 +18,7 @@ import { digestMessage } from '/src/utils/hash.js'
  * ---------------------------
  * AUTHENTICATION FUNCTIONS
  * ---------------------------
- */
+*/
 
 // Sign In (email/password)
 export function handleSignIn(event) {
