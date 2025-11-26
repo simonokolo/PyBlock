@@ -12,6 +12,7 @@ export class Canvas {
     this.translateX = 0;
     this.translateY = 0;
 
+    this.isDraggingNodes = false;
     this.draggedNode = null;
     this.offsetX = 0;
     this.offsetY = 0;
@@ -62,6 +63,7 @@ export class Canvas {
     // Stop panning and remove selection box on mouse up
     this.viewport.addEventListener("mouseup", () => {
       this.isDragging = false;
+      this.isDraggingNodes = false;
 
       // Remove selection box
       if (selectionBox) {
@@ -166,20 +168,18 @@ export class Canvas {
 
     // Start selection box on left mouse down
     this.viewport.addEventListener("mousedown", (e) => {
-      if (e.button === 0) {
-        
+      if (e.button === 0 && e.target === this.canvas) {
         this.dragStartX = e.clientX;
         this.dragStartY = e.clientY;
         this.isDragging = true;
 
-        // Create the box
         selectionBox = document.createElement("div");
         selectionBox.classList.add("selection-box");
         document.body.appendChild(selectionBox);
-
-        // Position it initially
         selectionBox.style.left = `${this.dragStartX}px`;
         selectionBox.style.top = `${this.dragStartY}px`;
+    
+        Block.blockList.forEach(b => b.setSelected(true));
       }
     })
 
@@ -203,27 +203,60 @@ export class Canvas {
       }
 
       // Create a dragging (selecting) box while dragging is true
-      // [Inside of mousemove to update position]
       if (this.isDragging) {
-        const dragWidth = this.dragStartX - e.clientX
-        const dragHeight = this.dragStartY - e.clientY
+        // Calculate box dimensions
+        const left = Math.min(e.clientX, this.dragStartX);
+        const top = Math.min(e.clientY, this.dragStartY);
+        const width = Math.abs(e.clientX - this.dragStartX);
+        const height = Math.abs(e.clientY - this.dragStartY);
 
-        // Create the box dimensions
-        selectionBox.style.left = `${Math.min(e.clientX, this.dragStartX)}px`;
-        selectionBox.style.top = `${Math.min(e.clientY, this.dragStartY)}px`;
-        selectionBox.style.width = `${Math.abs(dragWidth)}px`;
-        selectionBox.style.height = `${Math.abs(dragHeight)}px`;
+        // Update selection box styles
+        selectionBox.style.left = `${left}px`;
+        selectionBox.style.top = `${top}px`;
+        selectionBox.style.width = `${width}px`;
+        selectionBox.style.height = `${height}px`;
+
+        // Define selection box
+        const box = { left, top, right:left+width, bottom:top+height };
+
+        // Check for intersections with nodes
+        Block.blockList.forEach(b => {
+        const r = b.element.getBoundingClientRect();
+
+        const hit =
+          r.right > box.left &&
+          r.left < box.right &&
+          r.bottom > box.top &&
+          r.top < box.bottom;
+
+        b.setSelected(hit); // Highlights & makes deletable
+        });
       }
 
       // move node if dragging
-      if (this.draggedNode) {
-        // pointer pos (viewport) minus canvas translation (viewport) minus unscaled offset
-        const x = e.clientX - this.translateX - this.offsetX;
-        const y = e.clientY - this.translateY - this.offsetY;
+      if (this.isDraggingNodes) {
 
-        // convert back into canvas (unscaled) coords
-        this.draggedNode.style.left = `${x / this.zoom}px`;
-        this.draggedNode.style.top  = `${y / this.zoom}px`;
+        // Mouse delta
+        const dx = (e.clientX - this.dragStartMouseX) / this.zoom;
+        const dy = (e.clientY - this.dragStartMouseY) / this.zoom;
+
+        // Move selected blocks relative to original positions
+        this.dragOriginalPositions.forEach(p => {
+          p.block.element.style.left = `${p.x + dx}px`;
+          p.block.element.style.top  = `${p.y + dy}px`;
+        });
+      }
+    });
+
+    // Delete nodes
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace") {
+        Block.blockList
+          .filter(b => b.selected)
+          .forEach(b => b.element.remove());
+
+        // Also clear them from memory
+        Block.blockList = Block.blockList.filter(b => !b.selected);
       }
     });
 
@@ -259,34 +292,42 @@ export class Canvas {
   }
 
   insertNodeFromCatalogue(blockData, x, y) {
-    // Create a new block instance
     const block = new Block(blockData);
 
-    // Get the HTML element of the block
     const el = block.element;
     el.classList.add("node");
     el.style.position = "absolute";
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
 
-    // Add mousedown listener for dragging the node
-    el.addEventListener("mousedown", e => {
-    if (e.button !== 0) return;
-    // don't start a drag when interacting with form controls inside the node
-    if (e.target.matches('input, textarea, select, button')) return;
+    el.addEventListener("mousedown", (e) => {
+      if (e.button !== 0) return;
+      if (e.target.matches("input, textarea, select, button")) return;
 
-    this.draggedNode = el;
+      // If nothing is selected yet then its a single selection
+      const anySelected = Block.blockList.some((b) => b.selected);
+      if (!anySelected) {
+        Block.blockList.forEach((b) => b.setSelected(false));
+        block.setSelected(true);
+      }
 
-    // compute offset from the node's rect (in *viewport* coords)
-    const rect = el.getBoundingClientRect();
-    this.offsetX = e.clientX - rect.left;
-    this.offsetY = e.clientY - rect.top;
+      // Start multi drag for all selected blocks
+      this.isDraggingNodes = true;
+      this.dragStartMouseX = e.clientX;
+      this.dragStartMouseY = e.clientY;
 
-    this.viewport.style.cursor = "grabbing";
-    e.stopPropagation();
-  });
+      this.dragOriginalPositions = Block.blockList
+        .filter((b) => b.selected)
+        .map((b) => ({
+          block: b,
+          x: parseFloat(b.element.style.left),
+          y: parseFloat(b.element.style.top),
+        }));
 
-    // Append the block element to the canvas
+      this.viewport.style.cursor = "grabbing";
+      e.stopPropagation();
+    });
+
     this.canvas.appendChild(el);
   }
 }

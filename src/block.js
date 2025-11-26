@@ -1,19 +1,29 @@
+// block.js
 export class Block {
+  static blockList = [];
+
   constructor(blockData) {
     this.blockData = blockData;
-    this.element = this.createElement()
-    this.setupEventListeners()
+    this.element = this.createElement();
+    this.selected = false;
     this.hovered = false;
+
+    Block.blockList.push(this);
+    this.setupEventListeners();
   }
 
-  // Creates the HTML element for the block
+  setSelected(state) {
+    this.selected = state;
+    this.element.classList.toggle("selected", state);
+  }
+
   createElement() {
     const div = document.createElement("div");
     div.className = "node";
     div.dataset.type = this.blockData.type;
-    
+
     const needsInput = this.blockData.type === "print" || this.blockData.type === "variable";
-    
+
     div.innerHTML = `
       <div class="block-label">
         <span>${this.blockData.name}</span>
@@ -27,23 +37,22 @@ export class Block {
   }
 
   setupEventListeners() {
-    // Make the element focusable
     this.element.tabIndex = 0;
 
-    this.element.addEventListener('mouseenter', () => {
-      this.hovered = true;      
+    this.element.addEventListener("mouseenter", () => {
+      this.hovered = true;
     });
 
-    this.element.addEventListener('mouseleave', () => {
+    this.element.addEventListener("mouseleave", () => {
       this.hovered = false;
     });
 
-    // Delete node
-    this.element.addEventListener('keydown', (event) => {
-      if (event.key === 'Backspace') {
-        this.element.remove();
-      }
-    });
-  };
-}
+    this.element.addEventListener("click", (e) => {
+      if (e.target.matches("input, textarea, select, button")) return;
 
+      Block.blockList.forEach((b) => b.setSelected(false));
+      this.setSelected(true);
+      e.stopPropagation();
+    });
+  }
+}

@@ -84,6 +84,10 @@
   outline: 1px solid rgb(250, 250, 250);
 }
 
+.node.selected {
+  outline: 1px solid rgb(250, 250, 250);
+}
+
 .selection-box {
   position: absolute;
   border: 2px solid #ffffff;
