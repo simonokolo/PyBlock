@@ -16,7 +16,7 @@ export class Canvas {
     this.draggedNode = null;
     this.offsetX = 0;
     this.offsetY = 0;
-    this.gridSize = 40;
+    this.gridSize = 20;
 
     this.zoom = 1;
     this.zoomStep = 0.1;
@@ -62,6 +62,19 @@ export class Canvas {
 
     // Stop panning and remove selection box on mouse up
     this.viewport.addEventListener("mouseup", () => {
+
+      if (this.isDraggingNodes) {
+        Block.blockList
+          .filter(b => b.selected)
+          .forEach(b => {
+            const x = parseFloat(b.element.style.left);
+            const y = parseFloat(b.element.style.top);
+
+            b.element.style.left = `${this.snapToGrid(x)}px`;
+            b.element.style.top  = `${this.snapToGrid(y)}px`;
+          });
+      }
+
       this.isDragging = false;
       this.isDraggingNodes = false;
 
@@ -236,16 +249,18 @@ export class Canvas {
       // move node if dragging
       if (this.isDraggingNodes) {
 
-        // Mouse delta
         const dx = (e.clientX - this.dragStartMouseX) / this.zoom;
         const dy = (e.clientY - this.dragStartMouseY) / this.zoom;
 
-        // Move selected blocks relative to original positions
         this.dragOriginalPositions.forEach(p => {
-          p.block.element.style.left = `${p.x + dx}px`;
-          p.block.element.style.top  = `${p.y + dy}px`;
+          const newX = this.snapToGrid(p.x + dx);
+          const newY = this.snapToGrid(p.y + dy);
+
+          p.block.element.style.left = `${newX}px`;
+          p.block.element.style.top  = `${newY}px`;
         });
       }
+
     });
 
     // Delete nodes
@@ -291,6 +306,11 @@ export class Canvas {
     scaleText.textContent = `Scale: ${Math.round(this.zoom * 100)}%`;
   }
 
+  snapToGrid(value) {
+    return Math.round(value / this.gridSize) * this.gridSize;
+  }
+
+
   insertNodeFromCatalogue(blockData, x, y) {
     const block = new Block(blockData);
 
@@ -303,13 +323,6 @@ export class Canvas {
     el.addEventListener("mousedown", (e) => {
       if (e.button !== 0) return;
       if (e.target.matches("input, textarea, select, button")) return;
-
-      // If nothing is selected yet then its a single selection
-      const anySelected = Block.blockList.some((b) => b.selected);
-      if (!anySelected) {
-        Block.blockList.forEach((b) => b.setSelected(false));
-        block.setSelected(true);
-      }
 
       // Start multi drag for all selected blocks
       this.isDraggingNodes = true;

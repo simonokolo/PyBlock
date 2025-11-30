@@ -34,6 +34,7 @@ export class Block {
       </div>
     `;
 
+    // Create input sockets
     const inputContainer = div.querySelector(".inputs");
     (this.blockData.inputs || []).forEach(input => {
       const socket = document.createElement("div");
@@ -41,6 +42,7 @@ export class Block {
       inputContainer.appendChild(socket);
     });
 
+    // Create output sockets
     const outputContainer = div.querySelector(".outputs");
     (this.blockData.outputs || []).forEach(output => {
       const socket = document.createElement("div");
@@ -84,12 +86,18 @@ export class Block {
       this.hovered = false;
     });
 
-    this.element.addEventListener("click", (e) => {
+    this.element.addEventListener("mousedown", (e) => {
+      if (e.button !== 0) return;
       if (e.target.matches("input, textarea, select, button")) return;
 
-      Block.blockList.forEach((b) => b.setSelected(false));
-      this.setSelected(true);
+      if (!this.selected) {
+        Block.blockList.forEach(b => b.setSelected(false));
+        this.setSelected(true);
+      }
+
+      // Prevent canvas from treating this as a background mousedown
       e.stopPropagation();
     });
+
   }
 }

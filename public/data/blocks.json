@@ -159,48 +159,48 @@
       "name": "Add",
       "type": "Math",
       "blockImage": "../images/icons/block-icons/addPyblock.png",
-      "inputs": [{ "name": "A"}, { "name": "B"}],
-      "outputs": [{ "name": "result", "type": "float" }],
+      "inputs": [{ "name": "exec", "type": "flow" }, { "name": "A"}, { "name": "B"}],
+      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "float" }],
       "code": "A + B"
     },
     {
       "name": "Subtract",
       "type": "Math",
       "blockImage": "../images/icons/block-icons/subtractPyblock.png",
-      "inputs": [{ "name": "A"}, { "name": "B"}],
-      "outputs": [{ "name": "result", "type": "float" }],
+      "inputs": [{ "name": "exec", "type": "flow" }, { "name": "A"}, { "name": "B"}],
+      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "float" }],
       "code": "A - B"
     },
     {
       "name": "Multiply",
       "type": "Math",
       "blockImage": "../images/icons/block-icons/multiplyPyblock.png",
-      "inputs": [{ "name": "A"}, { "name": "B"}],
-      "outputs": [{ "name": "result", "type": "float" }],
+      "inputs": [{ "name": "exec", "type": "flow" }, { "name": "A"}, { "name": "B"}],
+      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "float" }],
       "code": "A * B"
     },
     {
       "name": "Divide",
       "type": "Math",
       "blockImage": "../images/icons/block-icons/dividePyblock.png",
-      "inputs": [{ "name": "A"}, { "name": "B"}],
-      "outputs": [{ "name": "result", "type": "float" }],
+      "inputs": [{ "name": "exec", "type": "flow" }, { "name": "A"}, { "name": "B"}],
+      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "float" }],
       "code": "A / B"
     },
     {
       "name": "Modulus",
       "type": "Math",
       "blockImage": "../images/icons/block-icons/modPyblock.png",
-      "inputs": [{ "name": "A"}, { "name": "B"}],
-      "outputs": [{ "name": "result", "type": "float" }],
+      "inputs": [{ "name": "exec", "type": "flow" }, { "name": "A"}, { "name": "B"}],
+      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "float" }],
       "code": "A % B"
     },
     {
       "name": "Random",
       "type": "Math",
       "blockImage": "../images/icons/block-icons/randomPyblock.png",
-      "inputs": [],
-      "outputs": [{ "name": "value", "type": "float" }],
+      "inputs": [{ "name": "exec", "type": "flow" }],
+      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "value", "type": "float" }],
       "contents": [],
       "code": "random()"
     },
