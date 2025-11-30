@@ -179,7 +179,7 @@ export class Canvas {
         selectionBox.style.left = `${this.dragStartX}px`;
         selectionBox.style.top = `${this.dragStartY}px`;
     
-        Block.blockList.forEach(b => b.setSelected(true));
+        Block.blockList.forEach(b => b.setSelected(false));
       }
     })
 

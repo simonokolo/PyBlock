@@ -22,17 +22,54 @@ export class Block {
     div.className = "node";
     div.dataset.type = this.blockData.type;
 
-    const needsInput = this.blockData.type === "print" || this.blockData.type === "variable";
-
     div.innerHTML = `
       <div class="block-label">
         <span>${this.blockData.name}</span>
       </div>
       <div class="block-padding"></div>
       <div class="block-io">
-        ${needsInput ? '<input type="text" placeholder="value">' : ''}
+        <div class="inputs"></div>
+        <div class="content"></div>
+        <div class="outputs"></div>  
       </div>
     `;
+
+    const inputContainer = div.querySelector(".inputs");
+    (this.blockData.inputs || []).forEach(input => {
+      const socket = document.createElement("div");
+      socket.className = `socket input type-${input.type || "any"}`;
+      inputContainer.appendChild(socket);
+    });
+
+    const outputContainer = div.querySelector(".outputs");
+    (this.blockData.outputs || []).forEach(output => {
+      const socket = document.createElement("div");
+      socket.className = `socket output type-${output.type || "any"}`;
+      outputContainer.appendChild(socket);
+    });
+
+    const contentContainer = div.querySelector(".content");
+
+    (this.blockData.contents || []).forEach(content => {
+      const el = document.createElement(
+          content.type === "dropdown" ? "select" : "input"
+      );
+
+      el.className = "content-item";
+
+      if (content.type === "dropdown") {
+          const placeholder = document.createElement("option");
+          placeholder.textContent = content.default;
+          placeholder.selected = true;
+          el.appendChild(placeholder);
+      } else {
+          el.value = content.name; // inputs work normally
+      }
+
+      contentContainer.appendChild(el);
+    });
+
+    
     return div;
   }
 

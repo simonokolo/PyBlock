@@ -2,118 +2,251 @@
   "blocks": [
     {
       "name": "Input",
-      "type": "Input / Output",
-      "blockImage": "../images/icons/block-icons/inputPyblock.png"
+      "type": "I/O",
+      "blockImage": "../images/icons/block-icons/inputPyblock.png",
+      "inputs": [{ "name": "exec", "type": "flow" }],
+      "outputs": [
+        { "name": "exec", "type": "flow" },
+        { "name": "value", "type": "string" }
+      ],
+      "contents": [{ "name": "datatype", "type": "dropdown", "default": "string" }],
+      "code": "input()"
     },
     {
       "name": "Output",
-      "type": "Input / Output",
-      "blockImage": "../images/icons/block-icons/outputPyblock.png"
+      "type": "I/O",
+      "blockImage": "../images/icons/block-icons/outputPyblock.png",
+      "inputs": [
+        { "name": "exec", "type": "flow" },
+        { "name": "value", "type": "any" }
+      ],
+      "outputs": [{ "name": "exec", "type": "flow" }],
+      "contents": [],
+      "code": "print(value)"
     },
+
     {
       "name": "While",
       "type": "Loops",
-      "blockImage": "../images/icons/block-icons/whilePyblock.png"
+      "blockImage": "../images/icons/block-icons/whilePyblock.png",
+      "inputs": [
+        { "name": "exec", "type": "flow" },
+        { "name": "condition", "type": "boolean" }
+      ],
+      "outputs": [{ "name": "loopContent", "type": "flow" }, {"name": "loopComplete", "type": "flow"}],
+      "contents": [],
+      "code": "while condition:\n    pass"
     },
     {
-      "name": "Loop",
+      "name": "Loop X Times",
       "type": "Loops",
-      "blockImage": "../images/icons/block-icons/loopPyblock.png"
+      "blockImage": "../images/icons/block-icons/loopPyblock.png",
+      "inputs": [
+        { "name": "exec", "type": "flow" },
+        { "name": "count", "type": "integer" }
+      ],
+      "outputs": [{ "name": "loopContent", "type": "flow" }, { "name": "loopComplete", "type": "flow" }],
+      "contents": [],
+      "code": "for i in range(count):\n    pass"
     },
     {
       "name": "If",
       "type": "Loops",
-      "blockImage": "../images/icons/block-icons/ifPyblock.png"
+      "blockImage": "../images/icons/block-icons/ifPyblock.png",
+      "inputs": [
+        { "name": "exec", "type": "flow" },
+        { "name": "condition", "type": "boolean" }
+      ],
+      "outputs": [
+        { "name": "true", "type": "flow" },
+        { "name": "false", "type": "flow" }
+      ],
+      "contents": [],
+      "code": "if condition:\n    pass\nelse:\n    pass"
     },
+
     {
       "name": "And",
       "type": "Logic",
-      "blockImage": "../images/icons/block-icons/andPyblock.png"
+      "blockImage": "../images/icons/block-icons/andPyblock.png",
+      "inputs": [
+        { "name": "A", "type": "boolean" },
+        { "name": "B", "type": "boolean" }
+      ],
+      "outputs": [{ "name": "result", "type": "boolean" }],
+      "contents": [],
+      "code": "A and B"
     },
     {
       "name": "Not",
       "type": "Logic",
-      "blockImage": "../images/icons/block-icons/notPyblock.png"
+      "blockImage": "../images/icons/block-icons/notPyblock.png",
+      "inputs": [{ "name": "A", "type": "boolean" }],
+      "outputs": [{ "name": "result", "type": "boolean" }],
+      "contents": [],
+      "code": "not A"
     },
     {
       "name": "Or",
       "type": "Logic",
-      "blockImage": "../images/icons/block-icons/orPyblock.png"
+      "blockImage": "../images/icons/block-icons/orPyblock.png",
+      "inputs": [
+        { "name": "A", "type": "boolean" },
+        { "name": "B", "type": "boolean" }
+      ],
+      "outputs": [{ "name": "result", "type": "boolean" }],
+      "contents": [],
+      "code": "A or B"
     },
     {
       "name": "Equals",
       "type": "Logic",
-      "blockImage": "../images/icons/block-icons/equalsPyblock.png"
+      "blockImage": "../images/icons/block-icons/equalsPyblock.png",
+      "inputs": [
+        { "name": "A", "type": "any" },
+        { "name": "B", "type": "any" }
+      ],
+      "outputs": [{ "name": "result", "type": "boolean" }],
+      "contents": [],
+      "code": "A == B"
     },
     {
       "name": "GreaterThan",
       "type": "Logic",
-      "blockImage": "../images/icons/block-icons/greaterThanPyblock.png"
+      "blockImage": "../images/icons/block-icons/greaterThanPyblock.png",
+      "inputs": [
+        { "name": "A", "type": "any" },
+        { "name": "B", "type": "any" }
+      ],
+      "outputs": [{ "name": "result", "type": "boolean" }],
+      "code": "A > B"
     },
     {
       "name": "LessThan",
       "type": "Logic",
-      "blockImage": "../images/icons/block-icons/lessThanPyblock.png"
+      "blockImage": "../images/icons/block-icons/lessThanPyblock.png",
+      "inputs": [
+        { "name": "A", "type": "any" },
+        { "name": "B", "type": "any" }
+      ],
+      "outputs": [{ "name": "result", "type": "boolean" }],
+      "code": "A < B"
     },
     {
       "name": "GreaterEqualThan",
       "type": "Logic",
-      "blockImage": "../images/icons/block-icons/greaterEqualPyblock.png"
+      "blockImage": "../images/icons/block-icons/greaterEqualPyblock.png",
+      "inputs": [
+        { "name": "A", "type": "any" },
+        { "name": "B", "type": "any" }
+      ],
+      "outputs": [{ "name": "result", "type": "boolean" }],
+      "code": "A >= B"
     },
     {
       "name": "LessEqualThan",
       "type": "Logic",
-      "blockImage": "../images/icons/block-icons/lessEqualPyblock.png"
+      "blockImage": "../images/icons/block-icons/lessEqualPyblock.png",
+      "inputs": [
+        { "name": "A", "type": "any" },
+        { "name": "B", "type": "any" }
+      ],
+      "outputs": [{ "name": "result", "type": "boolean" }],
+      "code": "A <= B"
     },
+
     {
       "name": "Add",
       "type": "Math",
-      "blockImage": "../images/icons/block-icons/addPyblock.png"
+      "blockImage": "../images/icons/block-icons/addPyblock.png",
+      "inputs": [{ "name": "A"}, { "name": "B"}],
+      "outputs": [{ "name": "result", "type": "float" }],
+      "code": "A + B"
     },
     {
       "name": "Subtract",
       "type": "Math",
-      "blockImage": "../images/icons/block-icons/subtractPyblock.png"
+      "blockImage": "../images/icons/block-icons/subtractPyblock.png",
+      "inputs": [{ "name": "A"}, { "name": "B"}],
+      "outputs": [{ "name": "result", "type": "float" }],
+      "code": "A - B"
     },
     {
       "name": "Multiply",
       "type": "Math",
-      "blockImage": "../images/icons/block-icons/multiplyPyblock.png"
+      "blockImage": "../images/icons/block-icons/multiplyPyblock.png",
+      "inputs": [{ "name": "A"}, { "name": "B"}],
+      "outputs": [{ "name": "result", "type": "float" }],
+      "code": "A * B"
     },
     {
       "name": "Divide",
       "type": "Math",
-      "blockImage": "../images/icons/block-icons/dividePyblock.png"
+      "blockImage": "../images/icons/block-icons/dividePyblock.png",
+      "inputs": [{ "name": "A"}, { "name": "B"}],
+      "outputs": [{ "name": "result", "type": "float" }],
+      "code": "A / B"
     },
     {
       "name": "Modulus",
       "type": "Math",
-      "blockImage": "../images/icons/block-icons/modPyblock.png"
+      "blockImage": "../images/icons/block-icons/modPyblock.png",
+      "inputs": [{ "name": "A"}, { "name": "B"}],
+      "outputs": [{ "name": "result", "type": "float" }],
+      "code": "A % B"
     },
     {
       "name": "Random",
       "type": "Math",
-      "blockImage": "../images/icons/block-icons/randomPyblock.png"
+      "blockImage": "../images/icons/block-icons/randomPyblock.png",
+      "inputs": [],
+      "outputs": [{ "name": "value", "type": "float" }],
+      "contents": [],
+      "code": "random()"
     },
+
     {
       "name": "VarSet",
-      "type": "Variable",
-      "blockImage": "../images/icons/block-icons/varSetPyblock.png"
+      "type": "Variables",
+      "blockImage": "../images/icons/block-icons/varSetPyblock.png",
+      "inputs": [
+        { "name": "exec", "type": "flow" },
+        { "name": "value", "type": "any" }
+      ],
+      "outputs": [{ "name": "exec", "type": "flow" }],
+      "contents": [{ "name": "variable", "type": "dropdown" }],
+      "code": "variable = value"
     },
     {
       "name": "VarGet",
-      "type": "Variable",
-      "blockImage": "../images/icons/block-icons/varGetPyblock.png"
+      "type": "Variables",
+      "blockImage": "../images/icons/block-icons/varGetPyblock.png",
+      "inputs": [],
+      "outputs": [{ "name": "value", "type": "any" }],
+      "contents": [{ "name": "variable", "type": "dropdown" }],
+      "code": "variable"
     },
     {
       "name": "VarCreate",
-      "type": "Variable",
-      "blockImage": "../images/icons/block-icons/varCreatePyblock.png"
+      "type": "Variables",
+      "blockImage": "../images/icons/block-icons/varCreatePyblock.png",
+      "inputs": [],
+      "outputs": [],
+      "contents": [
+        { "name": "name", "type": "string" },
+        { "name": "datatype", "type": "dropdown", "default": "integer" }
+      ],
+      "code": "create variable"
     },
+
     {
       "name": "Start",
       "type": "Terminator",
-      "blockImage": "../images/icons/block-icons/startPyblock.png"
+      "blockImage": "../images/icons/block-icons/startPyblock.png",
+      "inputs": [],
+      "outputs": [{ "name": "exec", "type": "flow" }],
+      "contents": [],
+      "code": ""
     }
   ]
 }
