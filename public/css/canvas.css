@@ -119,10 +119,12 @@
 
 .content {
   display:flex;
+  flex-direction: column;
   margin-top:auto; 
   align-items:center;
   justify-content:center;
   padding:6px;
+  gap: 10px;
   flex: 4;
 }
 

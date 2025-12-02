@@ -1,14 +1,14 @@
 import 
 { signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword, 
-    reauthenticateWithCredential,
-    signInWithPopup,
-    onAuthStateChanged,
-    sendPasswordResetEmail,
-    updateProfile,
-    updatePassword,
-    deleteUser,
-    signOut
+  createUserWithEmailAndPassword, 
+  reauthenticateWithCredential,
+  signInWithPopup,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  updateProfile,
+  updatePassword, 
+  deleteUser,
+  signOut
 } from "firebase/auth";
 
 import { auth, provider } from '/src/firebase-config.js';

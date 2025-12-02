@@ -230,8 +230,8 @@
       "name": "VarCreate",
       "type": "Variables",
       "blockImage": "../images/icons/block-icons/varCreatePyblock.png",
-      "inputs": [],
-      "outputs": [],
+      "inputs": [{ "name": "exec", "type": "flow" }],
+      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "any" }],
       "contents": [
         { "name": "name", "type": "string" },
         { "name": "datatype", "type": "dropdown", "default": "integer" }
