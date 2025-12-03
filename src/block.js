@@ -1,4 +1,3 @@
-// block.js
 export class Block {
   static blockList = [];
 
@@ -46,7 +45,7 @@ export class Block {
     const outputContainer = div.querySelector(".outputs");
     (this.blockData.outputs || []).forEach(output => {
       const socket = document.createElement("div");
-      socket.className = `socket output type-${output.type || "any"}`;
+      socket.className = `socket output type-${output.type || "any"}`
       outputContainer.appendChild(socket);
     });
 

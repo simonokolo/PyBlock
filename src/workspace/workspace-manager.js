@@ -2,7 +2,7 @@ import { Canvas } from "/src/workspace/canvas.js";
 import { Catalogue } from "/src/workspace/catalogue.js";
 import { LiveCode } from "/src/workspace/livecode.js";
 
-
+import { exportBlocksToJSON, loadBlocksFromJSON } from "/src/save-system.js";
 import { translateBlockCode } from "/src/utils/translator.js"
 import { initPyodideWorker, executePythonCode } from "/src/utils/pyodide.js";
 
@@ -11,6 +11,7 @@ class WorkspaceManager {
   constructor() {
     this.initialiseComponents();
     this.setupLiveCodeListeners();
+    this.setupEventListeners();
     this.translateCode();
   }
 
@@ -32,6 +33,50 @@ class WorkspaceManager {
       console.log("Translate button clicked!");
       this.translateCode(); // Call translation logic
     });
+  }
+
+  // Setup event listeners for saving project
+  setupEventListeners() {
+    document.getElementById("save-project-button").addEventListener("click", () => {
+      const json = exportBlocksToJSON();
+      console.log(json)
+    });
+
+    // download json
+    document.getElementById("download-project-button").addEventListener("click", () => {
+      const json = exportBlocksToJSON();
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "project.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // upload json
+    document.getElementById("upload-project-button").addEventListener("click", () => {
+      document.getElementById("upload-project-input").click();
+    });
+
+    // handle file input change
+    document.getElementById("upload-project-input").addEventListener("change", (event) => {
+      // Get the selected file
+      const file = event.target.files[0];
+
+      if (file) {
+        // Read the file contents
+        const reader = new FileReader();
+        // On file load
+        reader.onload = () => {
+          console.log("File contents:", reader.result);
+          loadBlocksFromJSON(reader.result);
+        };
+
+        reader.readAsText(file);
+      }
+    });
+
   }
 
   // Execute translated python code
