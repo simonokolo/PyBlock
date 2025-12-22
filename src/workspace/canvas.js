@@ -1,17 +1,23 @@
 import { Block } from "/src/block.js";
 
 export class Canvas {
-  constructor(containerId) {
+  constructor(containerId, project) {
+    this.project = project;
     this.container = document.getElementById(containerId);
     this.setupViewport();
     this.setupEventListeners();
 
+    // map of projectBlockId 
+    this.blockViews = new Map();
+
+    // movement / panning state
     this.isPanning = false;
     this.startX = 0;
     this.startY = 0;
     this.translateX = 0;
     this.translateY = 0;
 
+    // dragging nodes
     this.isDraggingNodes = false;
     this.draggedNode = null;
     this.offsetX = 0;
@@ -26,7 +32,14 @@ export class Canvas {
     this.isDragging = false;
     this.dragStartX = 0;
     this.dragStartY = 0;
+
+    // mouse drag state for nodes
+    this.dragStartMouseX = 0;
+    this.dragStartMouseY = 0;
+    this.dragOriginalPositions = []; // [{ view, x, y }]
     
+    // render any existing blocks in the project
+    this.renderFromProject();
   }
 
   setupViewport() {
@@ -50,9 +63,9 @@ export class Canvas {
     //---------[EVENT LISTENERS FOR CANVAS MOVEMENT]---------//
 
     this.viewport.addEventListener("mousedown", e => {
-      if (e.button !== 1) return; // Make sure the canvas only moves with the middle mouse button [Doesnt work for trackpads]
-      // only pan when clicking empty space
-      if (e.target === this.canvas) { 
+      // Middle mouse button panning (only when clicking empty canvas)
+      if (e.button !== 1) return;
+      if (e.target === this.canvas) {
         this.isPanning = true;
         this.startX = e.clientX - this.translateX;
         this.startY = e.clientY - this.translateY;
@@ -64,14 +77,22 @@ export class Canvas {
     this.viewport.addEventListener("mouseup", () => {
 
       if (this.isDraggingNodes) {
-        Block.blockList
-          .filter(b => b.selected)
-          .forEach(b => {
-            const x = parseFloat(b.element.style.left);
-            const y = parseFloat(b.element.style.top);
+        // Snap selected nodes to grid and update project positions
+        Array.from(this.blockViews.values())
+          .filter(v => v.selected)
+          .forEach(v => {
+            const x = parseFloat(v.element.style.left) || 0;
+            const y = parseFloat(v.element.style.top) || 0;
 
-            b.element.style.left = `${this.snapToGrid(x)}px`;
-            b.element.style.top  = `${this.snapToGrid(y)}px`;
+            const snappedX = this.snapToGrid(x);
+            const snappedY = this.snapToGrid(y);
+
+            v.element.style.left = `${snappedX}px`;
+            v.element.style.top  = `${snappedY}px`;
+
+            // update project data
+            v.data.x = snappedX;
+            v.data.y = snappedY;
           });
       }
 
@@ -94,27 +115,18 @@ export class Canvas {
     this.viewport.addEventListener("wheel", e => {
       e.preventDefault();
       
-      // Check if this is a pinch-to-zoom gesture
-      // Pinch zoom always comes with ctrlKey on trackpads
+      // Pinch-to-zoom (ctrlKey)
       if (e.ctrlKey) {
-        // This is zoom (either trackpad pinch or Ctrl+wheel)
         const oldZoom = this.zoom;
-        
-        // Use smaller zoom step for smoother pinch zooming
         const delta = -e.deltaY;
         const zoomFactor = delta > 0 ? 1.02 : 0.98;
-        
         this.zoom = Math.max(this.zoomMin, Math.min(this.zoomMax, this.zoom * zoomFactor));
         
-        // Calculate the point on the canvas that's under the mouse cursor
         const canvasPointX = (e.clientX - this.translateX) / oldZoom;
         const canvasPointY = (e.clientY - this.translateY) / oldZoom;
-        
-        // After zooming, calculate where that same canvas point should be to keep it under the mouse cursor
         this.translateX = e.clientX - (canvasPointX * this.zoom);
         this.translateY = e.clientY - (canvasPointY * this.zoom);
-        
-        // Apply clamping
+
         if (this.translateX > 0) {this.translateX = 0;}
         if (this.translateY > 0) {this.translateY = 0;}
 
@@ -126,27 +138,22 @@ export class Canvas {
         this.updateZoomText();
         this.updateGrid();
       }
-      // Two-finger swipe/pan or vertical scroll on trackpad
+      // Two-finger swipe/pan
       else if (e.deltaMode === 0) {
-        // deltaMode 0 = trackpad
-        // panning
         this.translateX -= e.deltaX;
         this.translateY -= e.deltaY;
         
-        // Make sure canvas is always in the negative to zero range
         const minX = this.viewport.clientWidth - (8000 * this.zoom);
         const minY = this.viewport.clientHeight - (5000 * this.zoom);
 
-        // Clamp the canvas
         this.translateX = Math.max(minX, Math.min(0, this.translateX));
         this.translateY = Math.max(minY, Math.min(0, this.translateY));
         
         this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
       }
 
-      // Mouse wheel scroll (deltaMode 1 or 2)
+      // Mouse wheel zoom
       else {
-        // zooming
         const oldZoom = this.zoom;
         
         if (e.deltaY < 0) {
@@ -155,15 +162,11 @@ export class Canvas {
           this.zoom = Math.max(this.zoom - this.zoomStep, this.zoomMin);
         }
         
-        // Calculate the point on the canvas under the mouse cursor
         const canvasPointX = (e.clientX - this.translateX) / oldZoom;
         const canvasPointY = (e.clientY - this.translateY) / oldZoom;
-        
-        // After zooming, calculate where that same canvas point should be to keep it under the mouse cursor
         this.translateX = e.clientX - (canvasPointX * this.zoom);
         this.translateY = e.clientY - (canvasPointY * this.zoom);
         
-        // Apply clamping
         if (this.translateX > 0) {this.translateX = 0;}
         if (this.translateY > 0) {this.translateY = 0;}
 
@@ -179,7 +182,7 @@ export class Canvas {
 
     //---------[EVENT LISTENERS DRAG]---------//
 
-    // Start selection box on left mouse down
+    // Start selection box on left mouse down (on empty canvas)
     this.viewport.addEventListener("mousedown", (e) => {
       if (e.button === 0 && e.target === this.canvas) {
         this.dragStartX = e.clientX;
@@ -192,9 +195,10 @@ export class Canvas {
         selectionBox.style.left = `${this.dragStartX}px`;
         selectionBox.style.top = `${this.dragStartY}px`;
     
-        Block.blockList.forEach(b => b.setSelected(false));
+        // clear selection
+        Array.from(this.blockViews.values()).forEach(v => v.setSelected(false));
       }
-    })
+    });
 
     //---------[EVENT LISTENERS NODE MOVEMENT]---------//
 
@@ -204,51 +208,43 @@ export class Canvas {
         this.translateX = e.clientX - this.startX;
         this.translateY = e.clientY - this.startY;
 
-        // Make sure canvas is always in the negative to zero range
         const minX = this.viewport.clientWidth - (8000 * this.zoom);
         const minY = this.viewport.clientHeight - (5000 * this.zoom);
 
-        // Clamp the canvas
         this.translateX = Math.max(minX, Math.min(0, this.translateX));
         this.translateY = Math.max(minY, Math.min(0, this.translateY));
                 
         this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
       }
 
-      // Create a dragging (selecting) box while dragging is true
-      if (this.isDragging) {
-        // Calculate box dimensions
+      // Update selection box and highlight intersecting nodes
+      if (this.isDragging && selectionBox) {
         const left = Math.min(e.clientX, this.dragStartX);
         const top = Math.min(e.clientY, this.dragStartY);
         const width = Math.abs(e.clientX - this.dragStartX);
         const height = Math.abs(e.clientY - this.dragStartY);
 
-        // Update selection box styles
         selectionBox.style.left = `${left}px`;
         selectionBox.style.top = `${top}px`;
         selectionBox.style.width = `${width}px`;
         selectionBox.style.height = `${height}px`;
 
-        // Define selection box
         const box = { left, top, right:left+width, bottom:top+height };
 
-        // Check for intersections with nodes
-        Block.blockList.forEach(b => {
-        const r = b.element.getBoundingClientRect();
+        Array.from(this.blockViews.values()).forEach(v => {
+          const r = v.element.getBoundingClientRect();
+          const hit =
+            r.right > box.left &&
+            r.left < box.right &&
+            r.bottom > box.top &&
+            r.top < box.bottom;
 
-        const hit =
-          r.right > box.left &&
-          r.left < box.right &&
-          r.bottom > box.top &&
-          r.top < box.bottom;
-
-        b.setSelected(hit); // Highlights & makes deletable
+          v.setSelected(hit);
         });
       }
 
-      // move node if dragging
+      // Move selected nodes while dragging nodes
       if (this.isDraggingNodes) {
-
         const dx = (e.clientX - this.dragStartMouseX) / this.zoom;
         const dy = (e.clientY - this.dragStartMouseY) / this.zoom;
 
@@ -256,41 +252,40 @@ export class Canvas {
           const newX = this.snapToGrid(p.x + dx);
           const newY = this.snapToGrid(p.y + dy);
 
-          p.block.element.style.left = `${newX}px`;
-          p.block.element.style.top  = `${newY}px`;
+          p.view.element.style.left = `${newX}px`;
+          p.view.element.style.top  = `${newY}px`;
         });
       }
 
     });
 
-    // Delete nodes
+    // Delete nodes on Backspace
     window.addEventListener("keydown", (e) => {
       if (e.key === "Backspace") {
-        Block.blockList
-          .filter(b => b.selected)
-          .forEach(b => b.element.remove());
-
-        // Also clear them from memory
-        Block.blockList = Block.blockList.filter(b => !b.selected);
+        // find selected views
+        const selected = Array.from(this.blockViews.values()).filter(v => v.selected);
+        selected.forEach(v => {
+          v.element.remove();
+          this.blockViews.delete(v.data.id);
+          // remove from project
+          this.project.removeBlock(v.data.id);
+        });
       }
     });
 
     // Drag and drop from catalogue
     this.canvas.addEventListener('dragover', (e) => {e.preventDefault();});
     this.canvas.addEventListener('drop', (e) => {
-      const blockResult = e.dataTransfer.getData('application/json');
-      const block = JSON.parse(blockResult);
+      const type = e.dataTransfer.getData("text/plain");
       const x = (e.clientX - this.translateX) / this.zoom;
       const y = (e.clientY - this.translateY) / this.zoom;
-      this.insertNodeFromCatalogue(block, x, y);
+      this.insertNodeFromCatalogue(type, x, y);
     });    
   }
 
   updateGrid() {
-    // Fade OUT small grid when zoomed out
     const alpha = Math.min(1, Math.max(0, (this.zoom - 0.5) / 0.5));
 
-    // Update the background image
     this.canvas.style.backgroundImage = `
       linear-gradient(to right, rgb(64, 64, 64, 1) 1px, transparent 1px),
       linear-gradient(to bottom, rgb(64, 64, 64, 1) 1px, transparent 1px),
@@ -299,10 +294,8 @@ export class Canvas {
     `;
   }
 
-  // Update the zoom text display
   updateZoomText() {
     const scaleText = document.getElementById("scale-text");
-    // Update the text content with the current zoom percentage
     scaleText.textContent = `Scale: ${Math.round(this.zoom * 100)}%`;
   }
 
@@ -310,31 +303,84 @@ export class Canvas {
     return Math.round(value / this.gridSize) * this.gridSize;
   }
 
+  // Render all blocks currently in the project (clear canvas first)
+  renderFromProject() {
+    // remove all existing DOM nodes for blocks
+    this.canvas.innerHTML = "";
+    this.blockViews.clear();
 
-  insertNodeFromCatalogue(blockData, x, y) {
-    const block = new Block(blockData);
+    const blocks = this.project.getBlocks();
+    blocks.forEach(b => {
+      const view = new Block(b);
+      view.element.style.position = "absolute";
+      view.element.style.left = `${b.x}px`;
+      view.element.style.top = `${b.y}px`;
 
-    const el = block.element;
-    el.classList.add("node");
+      // add mousedown handler for dragging/selecting
+      view.element.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
+        if (e.target.matches("input, textarea, select, button")) return;
+
+        // If this view isnt selected, select only this
+        if (!view.selected) {
+          Array.from(this.blockViews.values()).forEach(v => v.setSelected(false));
+          view.setSelected(true);
+        }
+
+        // Start multi-drag for all selected blocks
+        this.isDraggingNodes = true;
+        this.dragStartMouseX = e.clientX;
+        this.dragStartMouseY = e.clientY;
+
+        this.dragOriginalPositions = Array.from(this.blockViews.values())
+          .filter(v => v.selected)
+          .map(v => ({
+            view: v,
+            x: parseFloat(v.element.style.left) || 0,
+            y: parseFloat(v.element.style.top) || 0,
+          }));
+
+        this.viewport.style.cursor = "grabbing";
+        e.stopPropagation();
+      });
+
+      this.canvas.appendChild(view.element);
+      this.blockViews.set(b.id, view);
+    });
+  }
+
+  // Insert a new node into the project and render it
+  async insertNodeFromCatalogue(type, x, y) {
+    // create project block
+    const projectBlock = await this.project.createBlock(type, x, y);
+    // create visual view
+    const blockView = new Block(projectBlock);
+
+    const el = blockView.element;
     el.style.position = "absolute";
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
 
+    // mousedown handler - same as in renderFromProject
     el.addEventListener("mousedown", (e) => {
       if (e.button !== 0) return;
       if (e.target.matches("input, textarea, select, button")) return;
 
-      // Start multi drag for all selected blocks
+      if (!blockView.selected) {
+        Array.from(this.blockViews.values()).forEach(v => v.setSelected(false));
+        blockView.setSelected(true);
+      }
+
       this.isDraggingNodes = true;
       this.dragStartMouseX = e.clientX;
       this.dragStartMouseY = e.clientY;
 
-      this.dragOriginalPositions = Block.blockList
-        .filter((b) => b.selected)
-        .map((b) => ({
-          block: b,
-          x: parseFloat(b.element.style.left),
-          y: parseFloat(b.element.style.top),
+      this.dragOriginalPositions = Array.from(this.blockViews.values())
+        .filter(v => v.selected)
+        .map(v => ({
+          view: v,
+          x: parseFloat(v.element.style.left) || 0,
+          y: parseFloat(v.element.style.top) || 0,
         }));
 
       this.viewport.style.cursor = "grabbing";
@@ -342,5 +388,6 @@ export class Canvas {
     });
 
     this.canvas.appendChild(el);
+    this.blockViews.set(projectBlock.id, blockView);
   }
 }

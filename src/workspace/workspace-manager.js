@@ -1,3 +1,6 @@
+import { BlockRegistry } from "/src/workspace/block-registry.js";
+import { Project } from "/src/workspace/project.js";
+
 import { Canvas } from "/src/workspace/canvas.js";
 import { Catalogue } from "/src/workspace/catalogue.js";
 import { LiveCode } from "/src/workspace/livecode.js";
@@ -9,6 +12,8 @@ import { initPyodideWorker, executePythonCode } from "/src/utils/pyodide.js";
 // WorkspaceManager class to manage the workspace and its components
 class WorkspaceManager {
   constructor() {
+    this.project = new Project();
+    
     this.initialiseComponents();
     this.setupLiveCodeListeners();
     this.setupEventListeners();
@@ -17,7 +22,7 @@ class WorkspaceManager {
 
   // Initializes the components of the workspace
   initialiseComponents() {
-    this.canvas = new Canvas('viewport')
+    this.canvas = new Canvas("viewport", this.project);
     this.catalogue = new Catalogue('catalogue')
     this.livecode = new LiveCode('livecode')
   }
@@ -36,15 +41,16 @@ class WorkspaceManager {
   }
 
   // Setup event listeners for saving project
+    // Setup event listeners for saving project
   setupEventListeners() {
     document.getElementById("save-project-button").addEventListener("click", () => {
-      const json = exportBlocksToJSON();
-      console.log(json)
+      const json = exportBlocksToJSON(this.project);
+      console.log(json);
     });
 
     // download json
     document.getElementById("download-project-button").addEventListener("click", () => {
-      const json = exportBlocksToJSON();
+      const json = exportBlocksToJSON(this.project);
       const blob = new Blob([json], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -60,7 +66,7 @@ class WorkspaceManager {
     });
 
     // handle file input change
-    document.getElementById("upload-project-input").addEventListener("change", (event) => {
+    document.getElementById("upload-project-input").addEventListener("change", async (event) => {
       // Get the selected file
       const file = event.target.files[0];
 
@@ -68,16 +74,18 @@ class WorkspaceManager {
         // Read the file contents
         const reader = new FileReader();
         // On file load
-        reader.onload = () => {
+        reader.onload = async () => {
           console.log("File contents:", reader.result);
-          loadBlocksFromJSON(reader.result);
+          await loadBlocksFromJSON(reader.result, this.project);
+          // re-render the canvas from the newly loaded project
+          this.canvas.renderFromProject();
         };
 
         reader.readAsText(file);
       }
     });
-
   }
+
 
   // Execute translated python code
   async executeCode() {
@@ -108,10 +116,11 @@ class WorkspaceManager {
   }
 }
 
-// Initialize the WorkspaceManager when the DOM is fully loaded
+// Initialize the WorkspaceManager and BlockRegistry when the DOM is fully loaded
 window.addEventListener("DOMContentLoaded", async () => {
-  await initPyodideWorker(); // Load Pyodide in background thread
-  console.log("Pyodide ready!");
+  await initPyodideWorker();
+  await BlockRegistry.init(); // 🔒 definitions loaded once
 
-  new WorkspaceManager(); // rest of your app
+  console.log("Block registry ready!");
+  new WorkspaceManager();
 });

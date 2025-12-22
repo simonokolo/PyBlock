@@ -1,3 +1,5 @@
+import { BlockRegistry } from "/src/workspace/block-registry.js";
+
 export class Catalogue {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
@@ -47,18 +49,10 @@ export class Catalogue {
 
   // Fetches block data from a JSON file to initialise the catalogue box
   async fetchBlocks() {
-    try {
-      // Fetch the JSON file
-      const response = await fetch('/data/blocks.json');
-      if (!response.ok) { throw new Error(`Response: ${response.status}`);} 
-      // Parse the JSON data
-      const result = await response.json()
-      this.blocks = result.blocks
-      this.updateCatalogue();
-    }catch (error) {
-      console.error(error.message)
-    }
+    this.blocks = BlockRegistry.getAll();
+    this.updateCatalogue();
   }
+
 
   // Update the catalogue with each block
   async updateCatalogue(searchQuery = "") {
@@ -80,10 +74,10 @@ export class Catalogue {
         `;
 
         // Drag start event to set the data being dragged
-        div.addEventListener('dragstart', (e) => {
-          // Set the drag data as a JSON string
-          e.dataTransfer.setData('application/json', JSON.stringify(block));
+        div.addEventListener("dragstart", e => {
+          e.dataTransfer.setData("text/plain", block.name);
         });
+
 
         // Append the block div to the catalogue content
         this.catalogueContent.appendChild(div);

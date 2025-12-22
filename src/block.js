@@ -1,13 +1,8 @@
 export class Block {
-  static blockList = [];
-
-  constructor(blockData) {
-    this.blockData = blockData;
+  constructor(projectBlock) {
+    this.data = projectBlock; // reference to Project.js
     this.element = this.createElement();
     this.selected = false;
-    this.hovered = false;
-
-    Block.blockList.push(this);
     this.setupEventListeners();
   }
 
@@ -17,13 +12,15 @@ export class Block {
   }
 
   createElement() {
+    const { definition } = this.data;
+
     const div = document.createElement("div");
     div.className = "node";
-    div.dataset.type = this.blockData.type;
+    div.dataset.type = definition.type;
 
     div.innerHTML = `
       <div class="block-label">
-        <span>${this.blockData.name}</span>
+        <span>${definition.name}</span>
       </div>
       <div class="block-padding"></div>
       <div class="block-io">
@@ -33,70 +30,59 @@ export class Block {
       </div>
     `;
 
-    // Create input sockets
+    // Inputs
     const inputContainer = div.querySelector(".inputs");
-    (this.blockData.inputs || []).forEach(input => {
+    (definition.inputs || []).forEach(input => {
       const socket = document.createElement("div");
-      socket.className = `socket input type-${input.type || "any"}`;
+
+      const type = input.type || "any";
+
+      socket.className = `socket input type-${type}`;
+      socket.dataset.direction = "input";
+      socket.dataset.type = type;
+
       inputContainer.appendChild(socket);
     });
 
-    // Create output sockets
+    // Outputs
     const outputContainer = div.querySelector(".outputs");
-    (this.blockData.outputs || []).forEach(output => {
+    (definition.outputs || []).forEach(output => {
       const socket = document.createElement("div");
-      socket.className = `socket output type-${output.type || "any"}`
+
+      const type = output.type || "any";
+
+      socket.className = `socket output type-${type}`;
+      socket.dataset.direction = "output";
+      socket.dataset.type = type;
+
       outputContainer.appendChild(socket);
     });
 
+
+    // Contents
     const contentContainer = div.querySelector(".content");
-
-    (this.blockData.contents || []).forEach(content => {
+    (definition.contents || []).forEach(content => {
       const el = document.createElement(
-          content.type === "dropdown" ? "select" : "input"
+        content.type === "dropdown" ? "select" : "input"
       );
-
       el.className = "content-item";
 
-      if (content.type === "dropdown") {
-          const placeholder = document.createElement("option");
-          placeholder.textContent = content.default;
-          placeholder.selected = true;
-          el.appendChild(placeholder);
-      } else {
-          el.value = content.name; // inputs work normally
-      }
+      el.value = this.data.values?.[content.name] ?? content.default ?? "";
+
+      el.addEventListener("change", () => {
+        this.data.values[content.name] = el.value;
+      });
 
       contentContainer.appendChild(el);
     });
 
-    
     return div;
   }
 
   setupEventListeners() {
-    this.element.tabIndex = 0;
-
-    this.element.addEventListener("mouseenter", () => {
-      this.hovered = true;
-    });
-
-    this.element.addEventListener("mouseleave", () => {
-      this.hovered = false;
-    });
-
-    this.element.addEventListener("mousedown", (e) => {
+    this.element.addEventListener("mousedown", e => {
       if (e.button !== 0) return;
-      if (e.target.matches("input, textarea, select, button")) return;
-
-      if (!this.selected) {
-        Block.blockList.forEach(b => b.setSelected(false));
-        this.setSelected(true);
-      }
-
-      // Prevent canvas from treating this as a background mousedown
       e.stopPropagation();
     });
-
   }
 }
