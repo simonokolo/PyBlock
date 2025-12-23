@@ -16,7 +16,7 @@ export class Block {
 
     const div = document.createElement("div");
     div.className = "node";
-    div.dataset.type = definition.type;
+    div.dataset.type = definition.name;
 
     div.innerHTML = `
       <div class="block-label">
@@ -30,41 +30,44 @@ export class Block {
       </div>
     `;
 
-    // Inputs
+    // Inputs: render from the block instance sockets
     const inputContainer = div.querySelector(".inputs");
-    (definition.inputs || []).forEach(input => {
+    (this.data.sockets || []).filter(s => s.direction === "input").forEach(s => {
       const socket = document.createElement("div");
 
-      const type = input.type || "any";
-
-      socket.className = `socket input type-${type}`;
-      socket.dataset.direction = "input";
-      socket.dataset.type = type;
+      // class includes the socket type so css can color it: .socket.type-string etc.
+      socket.className = `socket input type-${s.type}`;
+      socket.dataset.direction = s.direction;
+      socket.dataset.type = s.type;
+      socket.dataset.index = s.index;
+      socket.dataset.socketId = s.id;
+      socket.title = s.name;
 
       inputContainer.appendChild(socket);
     });
 
-    // Outputs
+    // Outputs: render from the block instance sockets
     const outputContainer = div.querySelector(".outputs");
-    (definition.outputs || []).forEach(output => {
+    (this.data.sockets || []).filter(s => s.direction === "output").forEach(s => {
       const socket = document.createElement("div");
 
-      const type = output.type || "any";
-
-      socket.className = `socket output type-${type}`;
-      socket.dataset.direction = "output";
-      socket.dataset.type = type;
+      socket.className = `socket output type-${s.type}`;
+      socket.dataset.direction = s.direction;
+      socket.dataset.type = s.type;
+      socket.dataset.index = s.index;
+      socket.dataset.socketId = s.id;
+      socket.title = s.name;
 
       outputContainer.appendChild(socket);
     });
 
-
-    // Contents
+    // Contents (unchanged)
     const contentContainer = div.querySelector(".content");
-    (definition.contents || []).forEach(content => {
+    (definition.contents || []).forEach((content) => {
       const el = document.createElement(
         content.type === "dropdown" ? "select" : "input"
       );
+
       el.className = "content-item";
 
       el.value = this.data.values?.[content.name] ?? content.default ?? "";
