@@ -13,6 +13,7 @@ import { initPyodideWorker, executePythonCode } from "/src/utils/pyodide.js";
 class WorkspaceManager {
   constructor() {
     this.project = new Project();
+    //window.project = this.project; // for debugging
     
     this.initialiseComponents();
     this.setupLiveCodeListeners();
