@@ -14,7 +14,6 @@ class WorkspaceManager {
   constructor() {
     this.project = new Project();
     //window.project = this.project; // for debugging
-    
     this.initialiseComponents();
     this.setupLiveCodeListeners();
     this.setupEventListeners();
@@ -24,6 +23,7 @@ class WorkspaceManager {
   // Initializes the components of the workspace
   initialiseComponents() {
     this.canvas = new Canvas("viewport", this.project);
+    window.canvas = this.canvas; // for debugging ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
     this.catalogue = new Catalogue('catalogue')
     this.livecode = new LiveCode('livecode')
   }

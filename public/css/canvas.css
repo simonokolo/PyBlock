@@ -212,3 +212,9 @@
   color: #d5d5d5;
   background-color: #232323;
 }
+
+.connection-layer path {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 3;
+}

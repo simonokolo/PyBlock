@@ -126,6 +126,29 @@ export class Project {
     );
   }
 
+  // Get all connections
+  getConnections() {
+    return this.connections;
+  }
+
+  // Get all connections for a specific block
+  getConnectionsForBlock(blockId) {
+    return this.connections.filter(
+      c =>
+        c.from.blockId === blockId ||
+        c.to.blockId === blockId
+    );
+  }
+
+  // Get all connections for a specific socket
+  getConnectionsForSocket(blockId, socketId) {
+    return this.connections.filter(
+      c =>
+        (c.from.blockId === blockId && c.from.socketId === socketId) ||
+        (c.to.blockId === blockId && c.to.socketId === socketId)
+    );
+  }
+
   // Get a socket by block id and socket id
   getSocket(blockId, socketId) {
     const block = this.blocks.get(blockId);
@@ -159,7 +182,6 @@ export class Project {
       connections: this.connections
     };
   }
-
 
   // Deserialize project from save
   async deserialize(json) {

@@ -16,7 +16,7 @@ export class Block {
 
     const div = document.createElement("div");
     div.className = "node";
-    div.dataset.type = definition.name;
+    div.dataset.type = definition.type; // Changed from 'name' to 'type' to fix block colouring
 
     div.innerHTML = `
       <div class="block-label">
@@ -40,6 +40,7 @@ export class Block {
       socket.dataset.direction = s.direction;
       socket.dataset.type = s.type;
       socket.dataset.index = s.index;
+      socket.dataset.blockId = this.data.id;
       socket.dataset.socketId = s.id;
       socket.title = s.name;
 
@@ -51,10 +52,26 @@ export class Block {
     (this.data.sockets || []).filter(s => s.direction === "output").forEach(s => {
       const socket = document.createElement("div");
 
+      socket.addEventListener("mousedown", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        // notify canvas
+        document.dispatchEvent(
+          new CustomEvent("start-connection-drag", {
+            detail: {
+              blockId: this.data.id,
+              socketId: s.id
+            }
+          })
+        );
+      });
+
       socket.className = `socket output type-${s.type}`;
       socket.dataset.direction = s.direction;
       socket.dataset.type = s.type;
       socket.dataset.index = s.index;
+      socket.dataset.blockId = this.data.id;
       socket.dataset.socketId = s.id;
       socket.title = s.name;
 
@@ -69,9 +86,7 @@ export class Block {
       );
 
       el.className = "content-item";
-
       el.value = this.data.values?.[content.name] ?? content.default ?? "";
-
       el.addEventListener("change", () => {
         this.data.values[content.name] = el.value;
       });

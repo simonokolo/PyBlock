@@ -5,10 +5,21 @@ export class Canvas {
     this.project = project;
     this.container = document.getElementById(containerId);
     this.setupViewport();
-    this.setupEventListeners();
-
+    
     // map of projectBlockId 
     this.blockViews = new Map();
+
+    // SVG layer for connections
+    this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    this.svg.classList.add("connection-layer");
+    this.svg.style.position = "absolute";
+    this.svg.style.top = "0";
+    this.svg.style.left = "0";
+    this.svg.style.width = "100%";
+    this.svg.style.height = "100%";
+    this.svg.style.pointerEvents = "none";
+
+    this.setupEventListeners();
 
     // movement / panning state
     this.isPanning = false;
@@ -24,11 +35,13 @@ export class Canvas {
     this.offsetY = 0;
     this.gridSize = 20;
 
+    // zoom state
     this.zoom = 1;
     this.zoomStep = 0.1;
     this.zoomMin = 0.3;
     this.zoomMax = 2;
 
+    // selection box state
     this.isDragging = false;
     this.dragStartX = 0;
     this.dragStartY = 0;
@@ -37,6 +50,9 @@ export class Canvas {
     this.dragStartMouseX = 0;
     this.dragStartMouseY = 0;
     this.dragOriginalPositions = []; // [{ view, x, y }]
+
+    // drag connections
+    this.draggingConnection = null;
     
     // render any existing blocks in the project
     this.renderFromProject();
@@ -59,19 +75,59 @@ export class Canvas {
 
   setupEventListeners() {
     let selectionBox = null;
+    //---------[EVENT LISTENERS FOR CONNECTION DRAGGING]---------//
+
+    // Finish dragging connection on mouse up
+    window.addEventListener("mouseup", (e) => {
+      if (!this.draggingConnection) return;
+
+      // get element under mouse
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+
+      if (
+        el &&
+        el.classList.contains("socket") &&
+        el.dataset.direction === "input"
+      ) {
+        // get to block/socket ids
+        const toBlockId = Number(el.dataset.blockId);
+        const toSocketId = el.dataset.socketId;
+
+        // add connection to project
+        this.project.addConnection(
+          this.draggingConnection.fromBlockId,
+          this.draggingConnection.fromSocketId,
+          toBlockId,
+          toSocketId
+        );
+      }
+
+      // always clean up
+      this.draggingConnection.pathEl.remove();
+      this.draggingConnection = null;
+
+      this.renderConnections();
+    });
+
+    // Listen for start of connection drag from any bloc
+    document.addEventListener("start-connection-drag", (e) => {
+      const { blockId, socketId } = e.detail;
+
+      const fromPos = this.getSocketPosition(blockId, socketId);
+      if (!fromPos) return;
+
+      const path = this.createTempPath();
+
+      // store dragging state
+      this.draggingConnection = {
+        fromBlockId: blockId,
+        fromSocketId: socketId,
+        pathEl: path,
+        fromPos
+      };
+    });
 
     //---------[EVENT LISTENERS FOR CANVAS MOVEMENT]---------//
-
-    this.viewport.addEventListener("mousedown", e => {
-      // Middle mouse button panning (only when clicking empty canvas)
-      if (e.button !== 1) return;
-      if (e.target === this.canvas) {
-        this.isPanning = true;
-        this.startX = e.clientX - this.translateX;
-        this.startY = e.clientY - this.translateY;
-        this.viewport.style.cursor = "grabbing";
-      }
-    });
 
     // Stop panning and remove selection box on mouse up
     this.viewport.addEventListener("mouseup", () => {
@@ -203,8 +259,27 @@ export class Canvas {
     //---------[EVENT LISTENERS NODE MOVEMENT]---------//
 
     this.viewport.addEventListener("mousemove", e => {
+      
+      // Update dragging connection temp path
+      if (this.draggingConnection) {
+        const canvasRect = this.canvas.getBoundingClientRect();
+
+        // current mouse position in canvas coords
+        const mousePos = {
+          x: (e.clientX - canvasRect.left),
+          y: (e.clientY - canvasRect.top)
+        };
+
+        // update temp path
+        const { fromPos, pathEl } = this.draggingConnection;
+        const d = this.drawConnection(fromPos, mousePos);
+        // update path element
+        pathEl.setAttribute("d", d);
+      }
+
       // only pan when mouse is down
       if (this.isPanning) {
+        this.renderConnections();
         this.translateX = e.clientX - this.startX;
         this.translateY = e.clientY - this.startY;
 
@@ -245,6 +320,7 @@ export class Canvas {
 
       // Move selected nodes while dragging nodes
       if (this.isDraggingNodes) {
+        this.renderConnections();
         const dx = (e.clientX - this.dragStartMouseX) / this.zoom;
         const dy = (e.clientY - this.dragStartMouseY) / this.zoom;
 
@@ -270,6 +346,7 @@ export class Canvas {
           // remove from project
           this.project.removeBlock(v.data.id);
         });
+        this.renderConnections();
       }
     });
 
@@ -306,7 +383,12 @@ export class Canvas {
   // Render all blocks currently in the project (clear canvas first)
   renderFromProject() {
     // remove all existing DOM nodes for blocks
+    // Clear only block views
     this.canvas.innerHTML = "";
+
+    // Re-attach SVG layer FIRST
+    this.canvas.appendChild(this.svg);
+
     this.blockViews.clear();
 
     const blocks = this.project.getBlocks();
@@ -347,7 +429,82 @@ export class Canvas {
       this.canvas.appendChild(view.element);
       this.blockViews.set(b.id, view);
     });
+
+    // Now redraw connections
+    this.renderConnections();
   }
+
+  // Get the canvas position of a socket for connection drawing
+  getSocketPosition(blockId, socketId) {
+    const socketEl = document.querySelector(
+      `.socket[data-block-id="${blockId}"][data-socket-id="${socketId}"]`
+    );
+
+    if (!socketEl) return null;
+
+    // get bounding rects
+    const rect = socketEl.getBoundingClientRect();
+    const canvasRect = this.canvas.getBoundingClientRect();
+
+    return {
+      x: rect.left + rect.width / 2 - canvasRect.left,
+      y: rect.top + rect.height / 2 - canvasRect.top
+    };
+  }
+
+  drawConnection(fromPos, toPos) {
+    const dx = Math.abs(toPos.x - fromPos.x) * 0.5;
+
+    return `
+      M ${fromPos.x} ${fromPos.y}
+      C ${fromPos.x + dx} ${fromPos.y},
+        ${toPos.x - dx} ${toPos.y},
+        ${toPos.x} ${toPos.y}
+    `;
+  }
+
+  renderConnections() {
+    this.svg.innerHTML = "";
+
+    for (const conn of this.project.getConnections()) {
+      const from = this.getSocketPosition(
+        conn.from.blockId,
+        conn.from.socketId
+      );
+      const to = this.getSocketPosition(
+        conn.to.blockId,
+        conn.to.socketId
+      );
+
+      if (!from || !to) continue;
+
+      const path = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "path"
+      );
+
+      path.setAttribute("d", this.drawConnection(from, to));
+      this.svg.appendChild(path);
+    }
+  }
+
+  // Create a temporary SVG path for dragging connections
+  createTempPath() {
+    const path = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "path"
+    );
+
+    // styling
+    path.setAttribute("stroke", "#ffffff47");
+    path.setAttribute("stroke-width", "2");
+    path.setAttribute("fill", "none");
+
+    // add to SVG layer
+    this.svg.appendChild(path);
+    return path;
+  }
+
 
   // Insert a new node into the project and render it
   async insertNodeFromCatalogue(type, x, y) {
