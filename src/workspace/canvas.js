@@ -12,6 +12,7 @@ export class Canvas {
     // SVG layer for connections
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     this.svg.classList.add("connection-layer");
+    this.svg.style.zIndex = "1";
     this.svg.style.position = "absolute";
     this.svg.style.top = "0";
     this.svg.style.left = "0";
@@ -81,32 +82,33 @@ export class Canvas {
     window.addEventListener("mouseup", (e) => {
       if (!this.draggingConnection) return;
 
-      // get element under mouse
-      const el = document.elementFromPoint(e.clientX, e.clientY);
+      try {
+        const el = document.elementFromPoint(e.clientX, e.clientY);
 
-      if (
-        el &&
-        el.classList.contains("socket") &&
-        el.dataset.direction === "input"
-      ) {
-        // get to block/socket ids
-        const toBlockId = Number(el.dataset.blockId);
-        const toSocketId = el.dataset.socketId;
+        if (
+          el &&
+          el.classList.contains("socket") &&
+          el.dataset.direction === "input"
+        ) {
+          const toBlockId = Number(el.dataset.blockId);
+          const toSocketId = el.dataset.socketId;
 
-        // add connection to project
-        this.project.addConnection(
-          this.draggingConnection.fromBlockId,
-          this.draggingConnection.fromSocketId,
-          toBlockId,
-          toSocketId
-        );
+          this.project.addConnection(
+            this.draggingConnection.fromBlockId,
+            this.draggingConnection.fromSocketId,
+            toBlockId,
+            toSocketId
+          );
+        }
+      } catch (err) {
+        // Expected for invalid connections — log if you want
+        console.warn("Connection rejected [", err.message, "]");
+      } finally {
+        // remove temp path if invalid connection
+        this.draggingConnection.pathEl.remove();
+        this.draggingConnection = null;
+        this.renderConnections();
       }
-
-      // always clean up
-      this.draggingConnection.pathEl.remove();
-      this.draggingConnection = null;
-
-      this.renderConnections();
     });
 
     // Listen for start of connection drag from any bloc
@@ -178,6 +180,7 @@ export class Canvas {
         const zoomFactor = delta > 0 ? 1.02 : 0.98;
         this.zoom = Math.max(this.zoomMin, Math.min(this.zoomMax, this.zoom * zoomFactor));
         
+        // Adjust translation to keep canvas point under cursor stable
         const canvasPointX = (e.clientX - this.translateX) / oldZoom;
         const canvasPointY = (e.clientY - this.translateY) / oldZoom;
         this.translateX = e.clientX - (canvasPointX * this.zoom);
@@ -186,6 +189,7 @@ export class Canvas {
         if (this.translateX > 0) {this.translateX = 0;}
         if (this.translateY > 0) {this.translateY = 0;}
 
+        // Clamp to right/bottom edges
         if (this.translateX < this.viewport.clientWidth - this.canvas.clientWidth * this.zoom) {
           this.translateX = this.viewport.clientWidth - this.canvas.clientWidth * this.zoom;
         }
@@ -321,6 +325,7 @@ export class Canvas {
       // Move selected nodes while dragging nodes
       if (this.isDraggingNodes) {
         this.renderConnections();
+        // calculate mouse delta
         const dx = (e.clientX - this.dragStartMouseX) / this.zoom;
         const dy = (e.clientY - this.dragStartMouseY) / this.zoom;
 
@@ -386,7 +391,7 @@ export class Canvas {
     // Clear only block views
     this.canvas.innerHTML = "";
 
-    // Re-attach SVG layer FIRST
+    // Re-attach SVG layer
     this.canvas.appendChild(this.svg);
 
     this.blockViews.clear();
@@ -444,12 +449,14 @@ export class Canvas {
 
     // get bounding rects
     const rect = socketEl.getBoundingClientRect();
-    const canvasRect = this.canvas.getBoundingClientRect();
 
-    return {
-      x: rect.left + rect.width / 2 - canvasRect.left,
-      y: rect.top + rect.height / 2 - canvasRect.top
-    };
+    // Convert screen coords to canvas coords
+    const x =
+      (rect.left + rect.width / 2 - this.translateX) / this.zoom;
+    const y =
+      (rect.top + rect.height / 2 - this.translateY) / this.zoom;
+
+    return { x, y };
   }
 
   drawConnection(fromPos, toPos) {
@@ -504,7 +511,6 @@ export class Canvas {
     this.svg.appendChild(path);
     return path;
   }
-
 
   // Insert a new node into the project and render it
   async insertNodeFromCatalogue(type, x, y) {

@@ -74,21 +74,42 @@ export class Project {
       throw new Error("Invalid socket reference");
     }
 
+    // Enforce max connections
+    const fromCount = this.getConnectionCount(fromBlockId, fromSocketId);
+    const toCount = this.getConnectionCount(toBlockId, toSocketId);
+    const fromMax = this.getMaxConnections(fromSocket);
+    const toMax = this.getMaxConnections(toSocket);
+
+    // Check max connections
+    if (fromCount >= fromMax) {
+      throw new Error(
+        `Output socket already has maximum connections (${fromMax})`
+      );
+    }
+
+    // TO DO: WHEN A SOCKET CAN ONLY HAVE ONE CONNECTION, DISCONNECT THE OLD ONE INSTEAD OF THROWING AN ERROR
+    if (toCount >= toMax) {
+      throw new Error(
+        `Input socket already has a connection`
+      );
+    }
+
+
     // Direction validation
     if (fromSocket.direction !== "output" || toSocket.direction !== "input") {
       throw new Error("Connections must go from output to input");
     }
 
-    // Type compatibility (exact match or 'any')
-    const typesCompatible =
-      fromSocket.type === "any" ||
-      toSocket.type === "any" ||
-      fromSocket.type === toSocket.type;
-
-    if (!typesCompatible) {
+    // Type compatibility check
+    if (!this.socketCompatibilityCheck(fromSocket, toSocket)) {
       throw new Error(
         `Type mismatch: ${fromSocket.type} -> ${toSocket.type}`
       );
+    }
+
+    // Prevent self connection
+    if (fromBlockId === toBlockId) {
+      throw new Error("Cannot connect a block to itself");
     }
 
     // Prevent duplicate connections
@@ -113,6 +134,46 @@ export class Project {
     this.connections.push(connection);
     return connection;
   }
+
+  // Check socket compatibility
+  socketCompatibilityCheck(fromSocket, toSocket) {
+    // Flow is execution only
+    if (fromSocket.type === "flow" || toSocket.type === "flow") {
+      return fromSocket.type === "flow" && toSocket.type === "flow";
+    }
+
+    // Normal data compatibility
+    return (
+      fromSocket.type === "any" ||
+      toSocket.type === "any" ||
+      fromSocket.type === toSocket.type
+    );
+  }
+
+  // Get maximum connections allowed for a socket
+  getMaxConnections(socket) {
+    // Input sockets can have only one connection
+    if (socket.direction === "input") {
+      return 1;
+    }
+    
+    // Flows can only have one connection
+    if (socket.type === "flow") {
+      return 1;
+    }
+
+    // Other sockets have no limit
+    return Infinity;
+  }
+
+  // Get current connection count for a socket
+  getConnectionCount(blockId, socketId) {
+    return this.connections.filter(c =>
+      (c.from.blockId === blockId && c.from.socketId === socketId) ||
+      (c.to.blockId === blockId && c.to.socketId === socketId)
+    ).length;
+  }
+
 
   removeConnection(fromBlockId, fromSocketId, toBlockId, toSocketId) {
     this.connections = this.connections.filter(
