@@ -213,8 +213,7 @@
   background-color: #232323;
 }
 
-.connection-layer path {
-  fill: none;
-  stroke: #ffffff;
-  stroke-width: 3;
+#tooltip {
+  position: absolute;
+  z-index: 5;
 }

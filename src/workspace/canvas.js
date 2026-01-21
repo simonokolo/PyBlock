@@ -22,7 +22,7 @@ export class Canvas {
 
     this.setupEventListeners();
 
-    // movement / panning state
+    // movement / panning statez
     this.isPanning = false;
     this.startX = 0;
     this.startY = 0;
@@ -54,6 +54,7 @@ export class Canvas {
 
     // drag connections
     this.draggingConnection = null;
+    this.tooltip.style.visibility = "hidden";
     
     // render any existing blocks in the project
     this.renderFromProject();
@@ -63,6 +64,7 @@ export class Canvas {
     this.container.outerHTML = `
         <div id="viewport">
           <h5 id="scale-text">Scale: 100%</h5>
+          <div id="tooltip" class="material-icons">Tooltip</div>
           <div id="canvas">
           </div>
         </div>
@@ -72,6 +74,7 @@ export class Canvas {
 
     this.viewport = document.querySelector("#viewport");
     this.canvas = document.querySelector("#canvas");
+    this.tooltip = document.getElementById("tooltip")
   }
 
   setupEventListeners() {
@@ -264,6 +267,10 @@ export class Canvas {
 
     this.viewport.addEventListener("mousemove", e => {
       
+      // Update tooltip position
+      this.tooltip.style.left = e.clientX + 15 + "px";
+      this.tooltip.style.top = e.clientY + 15 + "px";
+
       // Update dragging connection temp path
       if (this.draggingConnection) {
         const canvasRect = this.canvas.getBoundingClientRect();
@@ -490,10 +497,63 @@ export class Canvas {
         "path"
       );
 
-      path.setAttribute("d", this.drawConnection(from, to));
+      // visible path
+      path.setAttribute("stroke", "#ffffffff");
+      path.setAttribute("stroke-width", "3");
+      path.setAttribute("fill", "none");
+
+      // Make clickable area bigger
+      path.style.pointerEvents = "stroke";
+      path.setAttribute("stroke-width", "30");
+      path.setAttribute("cursor", "pointer");
+      path.setAttribute("stroke", "#00000000");
+      path.setAttribute("fill", "none");
+
+      //visible path on top
+      const visiblePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      visiblePath.setAttribute("d", this.drawConnection(from, to));
+      visiblePath.setAttribute("stroke", "#ffffffff");
+      visiblePath.setAttribute("stroke-width", "3");
+      visiblePath.setAttribute("fill", "none");
+
+      // Click to delete connection
+      path.addEventListener("click", (e) => {
+
+        this.project.removeConnection(
+          conn.from.blockId,
+          conn.from.socketId,
+          conn.to.blockId,
+          conn.to.socketId
+        );
+
+        // Hide tooltip
+        this.tooltip.style.visibility = "hidden";
+        this.tooltip.textContent = "delete";
+
+        // Re-render connections
+        this.renderConnections();
+        e.stopPropagation();
+      });
+
+      // Tooltip on hover
+      path.addEventListener("mouseenter", () => {
+        this.tooltip.textContent = "delete";
+        this.tooltip.style.visibility = "visible";
+      })
+
+      // Hide tooltip on leave
+      path.addEventListener("mouseleave", () => {
+        this.tooltip.style.visibility = "hidden";
+        this.tooltip.textContent = "delete";
+      })
+
+      // Draw the paths
+      path.setAttribute("d", this.drawConnection(from, to)); // for invisible collision area
       this.svg.appendChild(path);
+      this.svg.appendChild(visiblePath);
     }
   }
+
 
   // Create a temporary SVG path for dragging connections
   createTempPath() {

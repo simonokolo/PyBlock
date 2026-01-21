@@ -185,6 +185,7 @@ export class Project {
           c.to.socketId === toSocketId
         )
     );
+    //console.log(this.connections);
   }
 
   // Get all connections
