@@ -20,6 +20,14 @@ export class Canvas {
     this.svg.style.height = "100%";
     this.svg.style.pointerEvents = "none";
 
+    // colours for data types
+    this.typeColours = {
+      "string": "#E91E63",
+      "integer": "#1E3A8A",
+      "float": "#00ACC1",
+      "boolean": "#AEEA00",
+    };
+
     this.setupEventListeners();
 
     // movement / panning statez
@@ -69,8 +77,6 @@ export class Canvas {
           </div>
         </div>
     `;
-
-    console.log('Viewport created!');
 
     this.viewport = document.querySelector("#viewport");
     this.canvas = document.querySelector("#canvas");
@@ -273,6 +279,32 @@ export class Canvas {
 
       // Update dragging connection temp path
       if (this.draggingConnection) {
+
+        // check for socket under mouse
+        const el = document.elementFromPoint(e.clientX, e.clientY);
+
+        // get validity of connection
+        if (el && el.classList.contains("socket") && el.dataset.direction === "input") {
+          const connectionValid = this.project.connectionValidation(
+            this.draggingConnection.fromBlockId,
+            this.draggingConnection.fromSocketId,
+            Number(el.dataset.blockId),
+            el.dataset.socketId
+          );
+
+          // show valid/invalid tooltip
+          if (connectionValid) {
+            this.tooltip.textContent = "check";
+            this.tooltip.style.visibility = "visible";
+          } else {
+            this.tooltip.textContent = "close";
+            this.tooltip.style.visibility = "visible";
+          }
+        } else {
+          this.tooltip.textContent = "";
+          this.tooltip.style.visibility = "hidden";
+        }
+
         const canvasRect = this.canvas.getBoundingClientRect();
 
         // current mouse position in canvas coords
@@ -481,26 +513,17 @@ export class Canvas {
     this.svg.innerHTML = "";
 
     for (const conn of this.project.getConnections()) {
-      const from = this.getSocketPosition(
-        conn.from.blockId,
-        conn.from.socketId
-      );
-      const to = this.getSocketPosition(
-        conn.to.blockId,
-        conn.to.socketId
-      );
+      // get socket positions
+      const from = this.getSocketPosition(conn.from.blockId, conn.from.socketId);
+      const to = this.getSocketPosition(conn.to.blockId, conn.to.socketId);
+
+      // Get colour based on starting socket type
+      const startSocketType = this.project.getSocket(conn.from.blockId, conn.from.socketId)?.type;
+      const colour = this.typeColours[startSocketType] || "#ffffff";
 
       if (!from || !to) continue;
 
-      const path = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "path"
-      );
-
-      // visible path
-      path.setAttribute("stroke", "#ffffffff");
-      path.setAttribute("stroke-width", "3");
-      path.setAttribute("fill", "none");
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
 
       // Make clickable area bigger
       path.style.pointerEvents = "stroke";
@@ -512,7 +535,7 @@ export class Canvas {
       //visible path on top
       const visiblePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
       visiblePath.setAttribute("d", this.drawConnection(from, to));
-      visiblePath.setAttribute("stroke", "#ffffffff");
+      visiblePath.setAttribute("stroke", colour);
       visiblePath.setAttribute("stroke-width", "3");
       visiblePath.setAttribute("fill", "none");
 

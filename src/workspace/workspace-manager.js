@@ -120,8 +120,7 @@ class WorkspaceManager {
 // Initialize the WorkspaceManager and BlockRegistry when the DOM is fully loaded
 window.addEventListener("DOMContentLoaded", async () => {
   await initPyodideWorker();
-  await BlockRegistry.init(); // 🔒 definitions loaded once
+  await BlockRegistry.init(); // definitions loaded once
 
-  console.log("Block registry ready!");
   new WorkspaceManager();
 });

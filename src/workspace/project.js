@@ -62,10 +62,38 @@ export class Project {
   // Remove a block by id
   removeBlock(id) {
     this.blocks.delete(id);
+
+    // Remove associated connections
+    this.connections = this.connections.filter(
+      c => c.from.blockId !== id && c.to.blockId !== id
+    );
   }
 
   // Add a connection between two sockets
   addConnection(fromBlockId, fromSocketId, toBlockId, toSocketId) {
+    // Validate connection
+    const isValid = this.connectionValidation(
+      fromBlockId,
+      fromSocketId,
+      toBlockId,
+      toSocketId
+    );
+
+    if (!isValid) {
+      return null; // silently ignore invalid connections
+    }
+
+    // Create connection record
+    const connection = {
+      from: { blockId: fromBlockId, socketId: fromSocketId },
+      to: { blockId: toBlockId, socketId: toSocketId }
+    };
+
+    this.connections.push(connection);
+    return connection;
+  }
+
+  connectionValidation(fromBlockId, fromSocketId, toBlockId, toSocketId) {
     // Get socket definitions
     const fromSocket = this.getSocket(fromBlockId, fromSocketId);
     const toSocket = this.getSocket(toBlockId, toSocketId);
@@ -102,9 +130,7 @@ export class Project {
 
     // Type compatibility check
     if (!this.socketCompatibilityCheck(fromSocket, toSocket)) {
-      throw new Error(
-        `Type mismatch: ${fromSocket.type} -> ${toSocket.type}`
-      );
+      return false;
     }
 
     // Prevent self connection
@@ -124,15 +150,7 @@ export class Project {
     if (duplicate) {
       return false; // silently ignore duplicates
     }
-
-    // Create connection record
-    const connection = {
-      from: { blockId: fromBlockId, socketId: fromSocketId },
-      to: { blockId: toBlockId, socketId: toSocketId }
-    };
-
-    this.connections.push(connection);
-    return connection;
+    return true;
   }
 
   // Check socket compatibility
@@ -174,7 +192,6 @@ export class Project {
     ).length;
   }
 
-
   removeConnection(fromBlockId, fromSocketId, toBlockId, toSocketId) {
     this.connections = this.connections.filter(
       c =>
@@ -185,7 +202,6 @@ export class Project {
           c.to.socketId === toSocketId
         )
     );
-    //console.log(this.connections);
   }
 
   // Get all connections
