@@ -113,6 +113,10 @@ export class Canvas {
         // Expected for invalid connections — log if you want
         console.warn("Connection rejected [", err.message, "]");
       } finally {
+        // Hide tooltip
+        this.tooltip.style.visibility = "hidden";
+        this.tooltip.textContent = "";
+
         // remove temp path if invalid connection
         this.draggingConnection.pathEl.remove();
         this.draggingConnection = null;
@@ -305,13 +309,12 @@ export class Canvas {
           this.tooltip.style.visibility = "hidden";
         }
 
-        const canvasRect = this.canvas.getBoundingClientRect();
-
         // current mouse position in canvas coords
         const mousePos = {
-          x: (e.clientX - canvasRect.left),
-          y: (e.clientY - canvasRect.top)
+          x: (e.clientX - this.translateX) / this.zoom,
+          y: (e.clientY - this.translateY) / this.zoom
         };
+
 
         // update temp path
         const { fromPos, pathEl } = this.draggingConnection;
@@ -405,15 +408,21 @@ export class Canvas {
   }
 
   updateGrid() {
+    // Keep the same alpha calculation for sub-grid fade
     const alpha = Math.min(1, Math.max(0, (this.zoom - 0.5) / 0.5));
 
+    // Ensure major lines are at least 1px on screen
+    const majorLineWidth = Math.max(1 / this.zoom, 1); // in px
+    const minorLineWidth = Math.max(0.5 / this.zoom, 0.5); // in px
+
     this.canvas.style.backgroundImage = `
-      linear-gradient(to right, rgb(64, 64, 64, 1) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(64, 64, 64, 1) 1px, transparent 1px),
-      linear-gradient(to right, rgb(52, 52, 52,${0.5 * alpha}) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(52, 52, 52,${0.5 * alpha}) 1px, transparent 1px)
+      linear-gradient(to right, rgba(64, 64, 64, 1) ${majorLineWidth}px, transparent ${majorLineWidth}px),
+      linear-gradient(to bottom, rgba(64, 64, 64, 1) ${majorLineWidth}px, transparent ${majorLineWidth}px),
+      linear-gradient(to right, rgba(52, 52, 52, ${0.5 * alpha}) ${minorLineWidth}px, transparent ${minorLineWidth}px),
+      linear-gradient(to bottom, rgba(52, 52, 52, ${0.5 * alpha}) ${minorLineWidth}px, transparent ${minorLineWidth}px)
     `;
   }
+
 
   updateZoomText() {
     const scaleText = document.getElementById("scale-text");
@@ -576,7 +585,6 @@ export class Canvas {
       this.svg.appendChild(visiblePath);
     }
   }
-
 
   // Create a temporary SVG path for dragging connections
   createTempPath() {

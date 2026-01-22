@@ -42,7 +42,6 @@ class WorkspaceManager {
   }
 
   // Setup event listeners for saving project
-    // Setup event listeners for saving project
   setupEventListeners() {
     document.getElementById("save-project-button").addEventListener("click", () => {
       const json = exportBlocksToJSON(this.project);
@@ -86,7 +85,6 @@ class WorkspaceManager {
       }
     });
   }
-
 
   // Execute translated python code
   async executeCode() {

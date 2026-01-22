@@ -99,7 +99,7 @@ export class Project {
     const toSocket = this.getSocket(toBlockId, toSocketId);
 
     if (!fromSocket || !toSocket) {
-      throw new Error("Invalid socket reference");
+      return false;
     }
 
     // Enforce max connections
@@ -110,22 +110,21 @@ export class Project {
 
     // Check max connections
     if (fromCount >= fromMax) {
-      throw new Error(
-        `Output socket already has maximum connections (${fromMax})`
-      );
+      console.log("Max connections reached on target socket, removing old connection");
+      this.getConnectionsForSocket(fromBlockId, fromSocketId).forEach(conn => {
+        this.removeConnection(conn.from.blockId, conn.from.socketId, conn.to.blockId, conn.to.socketId);
+      });
+      return true;
     }
 
-    // TO DO: WHEN A SOCKET CAN ONLY HAVE ONE CONNECTION, DISCONNECT THE OLD ONE INSTEAD OF THROWING AN ERROR
+    // Check max connections
     if (toCount >= toMax) {
-      throw new Error(
-        `Input socket already has a connection`
-      );
+      return false;
     }
-
 
     // Direction validation
     if (fromSocket.direction !== "output" || toSocket.direction !== "input") {
-      throw new Error("Connections must go from output to input");
+      return false;
     }
 
     // Type compatibility check
@@ -135,7 +134,7 @@ export class Project {
 
     // Prevent self connection
     if (fromBlockId === toBlockId) {
-      throw new Error("Cannot connect a block to itself");
+      return false;
     }
 
     // Prevent duplicate connections
