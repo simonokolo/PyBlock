@@ -4,6 +4,10 @@ import { Block } from "/src/block.js";
 export class Project {
   constructor() {
     this.blocks = new Map(); // id -> block instance data
+
+    // Initialise the project with a start node
+    this.createBlock("Start", 4000, 2500);
+    
     this.connections = [];
     this.nextId = 1;
   }

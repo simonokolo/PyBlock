@@ -23,7 +23,7 @@ class WorkspaceManager {
   // Initializes the components of the workspace
   initialiseComponents() {
     this.canvas = new Canvas("viewport", this.project);
-    window.canvas = this.canvas; // for debugging ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+    //window.canvas = this.canvas; // for debugging ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
     this.catalogue = new Catalogue('catalogue')
     this.livecode = new LiveCode('livecode')
   }

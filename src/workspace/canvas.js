@@ -66,6 +66,8 @@ export class Canvas {
     
     // render any existing blocks in the project
     this.renderFromProject();
+    // centre the viewport so the canvas starts in the middle
+    this.centerViewport();
   }
 
   setupViewport() {
@@ -584,6 +586,36 @@ export class Canvas {
       this.svg.appendChild(path);
       this.svg.appendChild(visiblePath);
     }
+  }
+
+  // Center the canvas viewport within the available viewport area
+  centerViewport() {
+    if (!this.viewport || !this.canvas) return;
+
+    // viewport and canvas sizes
+    const vw = this.viewport.clientWidth;
+    const vh = this.viewport.clientHeight;
+    const cw = this.canvas.clientWidth * this.zoom;
+    const ch = this.canvas.clientHeight * this.zoom;
+
+    // translate to center canvas
+    let tx = (vw - cw) / 2;
+    let ty = (vh - ch) / 2;
+
+    // clamp to allowed ranges
+    const minX = vw - (this.canvas.clientWidth * this.zoom);
+    const minY = vh - (this.canvas.clientHeight * this.zoom);
+    tx = Math.max(minX, Math.min(0, tx));
+    ty = Math.max(minY, Math.min(0, ty));
+
+    // apply translation
+    this.translateX = tx;
+    this.translateY = ty;
+
+    this.canvas.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.zoom})`;
+    this.updateGrid();
+    this.updateZoomText();
+    this.renderConnections();
   }
 
   // Create a temporary SVG path for dragging connections
