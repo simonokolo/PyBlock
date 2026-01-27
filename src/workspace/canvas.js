@@ -144,6 +144,19 @@ export class Canvas {
       };
     });
 
+    // Create variable event from VarCreate blocks
+    document.addEventListener('project-create-variable', (e) => {
+      const { name, type } = e.detail || {};
+      if (!name) return;
+      this.project.addVariable(name, type || console.warn("Variable type missing"));
+
+      // Refresh variable dropdowns on existing blocks
+      const variables = this.project.getAllVariables();
+      Array.from(this.blockViews.values()).forEach(v => {
+        try { v.updateVariableOptions(variables); } catch (err) {}
+      });
+    });
+
     //---------[EVENT LISTENERS FOR CANVAS MOVEMENT]---------//
 
     // Stop panning and remove selection box on mouse up
@@ -483,6 +496,11 @@ export class Canvas {
 
       this.canvas.appendChild(view.element);
       this.blockViews.set(b.id, view);
+
+      // populate variable dropdowns for this block from project
+      try {
+        view.updateVariableOptions(this.project.getAllVariables());
+      } catch (e) {}
     });
 
     // Now redraw connections
@@ -675,5 +693,11 @@ export class Canvas {
 
     this.canvas.appendChild(el);
     this.blockViews.set(projectBlock.id, blockView);
+
+    // populate variable dropdowns for this newly inserted block
+    try {
+      blockView.updateVariableOptions(this.project.getAllVariables());
+    } catch (e) {}
   }
+
 }

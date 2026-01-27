@@ -9,7 +9,7 @@
         { "name": "exec", "type": "flow" },
         { "name": "value", "type": "string" }
       ],
-      "contents": [{ "name": "datatype", "type": "dropdown", "default": "string" }],
+      "contents": [{ "name": "datatype", "type": "dropdown", "default": "string", "options": ["integer","string"] }],
       "code": "input()"
     },
     {
@@ -46,7 +46,7 @@
         { "name": "count", "type": "integer" }
       ],
       "outputs": [{ "name": "loopContent", "type": "flow" }, { "name": "loopComplete", "type": "flow" }],
-      "contents": [],
+      "contents": [{ "name": "count", "type": "string", "default": "" }],
       "code": "for i in range(count):\n    pass"
     },
     {
@@ -234,7 +234,7 @@
       "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "any" }],
       "contents": [
         { "name": "name", "type": "string" },
-        { "name": "datatype", "type": "dropdown", "default": "integer" }
+        { "name": "datatype", "type": "dropdown", "default": "integer", "options": ["integer", "float", "string", "boolean"] }
       ],
       "code": "create variable"
     },

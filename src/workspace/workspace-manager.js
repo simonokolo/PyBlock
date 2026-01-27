@@ -6,8 +6,8 @@ import { Catalogue } from "/src/workspace/catalogue.js";
 import { LiveCode } from "/src/workspace/livecode.js";
 
 import { exportBlocksToJSON, loadBlocksFromJSON } from "/src/save-system.js";
-import { translateBlockCode } from "/src/utils/translator.js"
 import { initPyodideWorker, executePythonCode } from "/src/utils/pyodide.js";
+import { translator } from '../utils/translator';
 
 // WorkspaceManager class to manage the workspace and its components
 class WorkspaceManager {
@@ -26,6 +26,7 @@ class WorkspaceManager {
     //window.canvas = this.canvas; // for debugging ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
     this.catalogue = new Catalogue('catalogue')
     this.livecode = new LiveCode('livecode')
+    this.translator = new translator(this.project);
   }
 
   // Create event listeners for execute and translate
@@ -108,6 +109,9 @@ class WorkspaceManager {
 
   // Translates block code
   async translateCode() {
+    const code = this.translator.translate(this.project);
+    
+    // Get the current Python code
     const response = await fetch('/data/main.py');
     const pyFileText = await response.text();
 

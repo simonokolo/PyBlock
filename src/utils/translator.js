@@ -1,3 +1,12 @@
-export function translateBlockCode() {
-  return (`for i in range (10):|>print(i)`)
+export class translator {
+  constructor(project) {
+    // Initialize with the project
+    this.project = project;
+  };
+
+  // Translate the project blocks to code
+  translate(project) {
+    console.log("Translating project...", project);
+  }
+
 }

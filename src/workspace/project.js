@@ -1,20 +1,21 @@
 import { BlockRegistry } from "/src/workspace/block-registry.js";
-import { Block } from "/src/block.js";
 
 export class Project {
   constructor() {
     this.blocks = new Map(); // id -> block instance data
+    this.connections = [];
+    this.variables = new Map(); // name -> { type }
+
+    this.nextId = 1;
 
     // Initialise the project with a start node
     this.createBlock("Start", 4000, 2500);
-    
-    this.connections = [];
-    this.nextId = 1;
   }
 
   // Create a new block instance
   async createBlock(type, x, y, values = {}) {
-    const definition = BlockRegistry.get(type);
+    // Use a deep copy of the definition so instance changes don't mutate the registry
+    const definition = JSON.parse(JSON.stringify(BlockRegistry.get(type)));
     if (!definition) {
       throw new Error(`Unknown block type: ${type}`);
     }
@@ -60,6 +61,15 @@ export class Project {
     });
 
     this.blocks.set(id, block);
+
+    // If this is a VarCreate block, add the variable to the project
+    if (type === "VarCreate") {
+      const name = block.values.name || "";
+      const varType = block.values.datatype || block.values.type || "int";
+
+      this.addVariable(name, varType);
+    }
+
     return block;
   }
 
@@ -247,6 +257,8 @@ export class Project {
   // Remove all blocks
   clear() {
     this.blocks.clear();
+    this.connections = [];
+    this.variables.clear();
     this.nextId = 1;
   }
 
@@ -260,7 +272,8 @@ export class Project {
         y: b.y,
         values: b.values
       })),
-      connections: this.connections
+      connections: this.connections,
+      variables: this.getAllVariables()
     };
   }
 
@@ -279,6 +292,39 @@ export class Project {
         this.nextId = Math.max(this.nextId, block.id + 1);
       }
     }
+
+    (data.variables || []).forEach(v => {
+      this.variables.set(v.name, { type: v.type });
+    })
+
     this.connections = data.connections || [];
   }
+
+  // Variable management
+  addVariable(name, type) {
+    if (!name) return;
+    this.variables.set(name, { type });
+    // notify UI that variables changed
+    document.dispatchEvent(new CustomEvent("project-variable-changed", {
+      detail: { variables: this.getAllVariables() }
+    }));
+  }
+
+  removeVariable(name) {
+    this.variables.delete(name);
+    document.dispatchEvent(new CustomEvent("project-variable-changed", {
+      detail: { variables: this.getAllVariables() }
+    }));
+  }
+
+  getVariable(name) {
+    return this.variables.get(name) || null;
+  }
+
+  getAllVariables() {
+    return Array.from(this.variables.entries()).map(
+      ([name, data]) => ({ name, type: data.type })
+    );
+  }
+
 }
