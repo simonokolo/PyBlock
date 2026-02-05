@@ -699,5 +699,4 @@ export class Canvas {
       blockView.updateVariableOptions(this.project.getAllVariables());
     } catch (e) {}
   }
-
 }

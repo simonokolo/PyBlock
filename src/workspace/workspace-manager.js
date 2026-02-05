@@ -5,7 +5,7 @@ import { Canvas } from "/src/workspace/canvas.js";
 import { Catalogue } from "/src/workspace/catalogue.js";
 import { LiveCode } from "/src/workspace/livecode.js";
 
-import { exportBlocksToJSON, loadBlocksFromJSON } from "/src/save-system.js";
+import { exportBlocksToJSON, loadBlocksFromJSON, saveProjectToFirestore, loadAllProjectsFromFirestore } from "/src/save-system.js";
 import { initPyodideWorker, executePythonCode } from "/src/utils/pyodide.js";
 import { Translator } from '../utils/translator';
 
@@ -18,6 +18,20 @@ class WorkspaceManager {
     this.setupLiveCodeListeners();
     this.setupEventListeners();
     this.translateCode();
+    this.updateUserProjectList();
+  }
+
+  async updateUserProjectList() {
+    const userProjects = await loadAllProjectsFromFirestore(this.project);
+    for (const project of userProjects) {
+      const button = document.createElement("button");
+      button.textContent = project.data.name;
+      button.addEventListener("click", async () => {
+        await loadBlocksFromJSON(project.data.data, this.project);
+        this.canvas.renderFromProject();
+      });
+      document.getElementById("project-list").appendChild(button);
+    }
   }
 
   // Initializes the components of the workspace
@@ -44,9 +58,8 @@ class WorkspaceManager {
 
   // Setup event listeners for saving project
   setupEventListeners() {
-    document.getElementById("save-project-button").addEventListener("click", () => {
-      const json = exportBlocksToJSON(this.project);
-      console.log(json);
+    document.getElementById("save-project-button").addEventListener("click", async () => {
+      await saveProjectToFirestore(this.project);
     });
 
     // download json
@@ -127,5 +140,5 @@ window.addEventListener("DOMContentLoaded", async () => {
   await initPyodideWorker();
   await BlockRegistry.init(); // definitions loaded once
 
-  new WorkspaceManager();
+  new WorkspaceManager();  
 });

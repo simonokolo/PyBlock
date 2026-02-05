@@ -10,6 +10,7 @@ import
   deleteUser,
   signOut
 } from "firebase/auth";
+
 import { auth, provider, db } from '/src/firebase-config.js';
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { digestMessage } from '/src/utils/hash.js'
