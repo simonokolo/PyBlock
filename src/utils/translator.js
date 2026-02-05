@@ -1,12 +1,13 @@
-export class translator {
+export class Translator {
   constructor(project) {
-    // Initialize with the project
     this.project = project;
-  };
-
-  // Translate the project blocks to code
-  translate(project) {
-    console.log("Translating project...", project);
   }
 
+  // print each block
+  translate(project) {
+    const lines = [];
+    for (const block of project.blocks.values()) {
+      console.log(`Block ${block.id}: ${block.type} at (${block.x}, ${block.y}) with values:`, block.values);
+    }
+  }
 }

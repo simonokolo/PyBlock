@@ -159,49 +159,72 @@
       "name": "Add",
       "type": "Math",
       "blockImage": "../images/icons/block-icons/addPyblock.png",
-      "inputs": [{ "name": "exec", "type": "flow" }, { "name": "A"}, { "name": "B"}],
-      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "float" }],
+      "inputs": [{ "name": "A"}, { "name": "B"}],
+      "contents": [
+        { "name": "A", "type": "integer", "default": "" },
+        { "name": "B", "type": "integer", "default": "" }
+      ],
+      "outputs": [{ "name": "result", "type": "float" }],
       "code": "A + B"
     },
     {
       "name": "Subtract",
       "type": "Math",
       "blockImage": "../images/icons/block-icons/subtractPyblock.png",
-      "inputs": [{ "name": "exec", "type": "flow" }, { "name": "A"}, { "name": "B"}],
-      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "float" }],
+      "inputs": [{ "name": "A"}, { "name": "B"}],
+      "contents": [
+        { "name": "A", "type": "integer", "default": "" },
+        { "name": "B", "type": "integer", "default": "" }
+      ],
+      "outputs": [{ "name": "result", "type": "float" }],
       "code": "A - B"
     },
     {
       "name": "Multiply",
       "type": "Math",
       "blockImage": "../images/icons/block-icons/multiplyPyblock.png",
-      "inputs": [{ "name": "exec", "type": "flow" }, { "name": "A"}, { "name": "B"}],
-      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "float" }],
+      "inputs": [{ "name": "A"}, { "name": "B"}],
+      "contents": [
+        { "name": "A", "type": "integer", "default": "" },
+        { "name": "B", "type": "integer", "default": "" }
+      ],
+      "outputs": [{ "name": "result", "type": "float" }],
       "code": "A * B"
     },
     {
       "name": "Divide",
       "type": "Math",
       "blockImage": "../images/icons/block-icons/dividePyblock.png",
-      "inputs": [{ "name": "exec", "type": "flow" }, { "name": "A"}, { "name": "B"}],
-      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "float" }],
+      "inputs": [{ "name": "A"}, { "name": "B"}],
+      "contents": [
+        { "name": "A", "type": "integer", "default": "" },
+        { "name": "B", "type": "integer", "default": "" }
+      ],
+      "outputs": [{ "name": "result", "type": "float" }],
       "code": "A / B"
     },
     {
       "name": "Modulus",
       "type": "Math",
       "blockImage": "../images/icons/block-icons/modPyblock.png",
-      "inputs": [{ "name": "exec", "type": "flow" }, { "name": "A"}, { "name": "B"}],
-      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "float" }],
+      "inputs": [{ "name": "A"}, { "name": "B"}],
+      "contents": [
+        { "name": "A", "type": "integer", "default": "" },
+        { "name": "B", "type": "integer", "default": "" }
+      ],
+      "outputs": [{ "name": "result", "type": "float" }],
       "code": "A % B"
     },
     {
       "name": "Random",
       "type": "Math",
       "blockImage": "../images/icons/block-icons/randomPyblock.png",
-      "inputs": [{ "name": "exec", "type": "flow" }],
-      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "value", "type": "float" }],
-      "contents": [],
+      "inputs": [{ "name": "A"}, { "name": "B"}],
+      "contents": [
+        { "name": "A", "type": "integer", "default": "" },
+        { "name": "B", "type": "integer", "default": "" }
+      ],
+      "outputs": [{ "name": "value", "type": "float" }],
       "code": "random()"
     },
 
@@ -231,7 +254,7 @@
       "type": "Variables",
       "blockImage": "../images/icons/block-icons/varCreatePyblock.png",
       "inputs": [{ "name": "exec", "type": "flow" }],
-      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "result", "type": "any" }],
+      "outputs": [{ "name": "exec", "type": "flow" }, { "name": "value", "type": "any" }],
       "contents": [
         { "name": "name", "type": "string" },
         { "name": "datatype", "type": "dropdown", "default": "integer", "options": ["integer", "float", "string", "boolean"] }

@@ -10,8 +10,8 @@ import
   deleteUser,
   signOut
 } from "firebase/auth";
-
-import { auth, provider } from '/src/firebase-config.js';
+import { auth, provider, db } from '/src/firebase-config.js';
+import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { digestMessage } from '/src/utils/hash.js'
 
 /**
@@ -19,6 +19,21 @@ import { digestMessage } from '/src/utils/hash.js'
  * AUTHENTICATION FUNCTIONS
  * ---------------------------
 */
+
+// Create or update a Firestore user document for a newly created/signed-in user
+async function createUserDocument(user) {
+  if (!user) return;
+
+  const userRef = doc(db, 'users', user.uid);
+
+  try {
+    console.log("Attempting to write user doc for:", user.uid);
+    await setDoc(userRef, { createdAt: serverTimestamp() }, { merge: true });
+    console.log('User document written for', user.uid);
+  } catch (err) {
+    console.error('Error writing user doc:', err);
+  }
+}
 
 // Sign In (email/password)
 export function handleSignIn(event) {
@@ -53,6 +68,9 @@ export async function handleSignUp(event) {
     });
     await user.reload(); // Clears old user cache
 
+    // Create Firestore user entry
+    await createUserDocument(user);
+
     // Clears flag to allow OnAuthStateChanged to redirect
     sessionStorage.removeItem("accountUpdatePending");
     window.location.href = "/pages/workspace.html";
@@ -65,7 +83,15 @@ export async function handleSignUp(event) {
 // Google Sign-In
 export function handleGoogleSignIn() {
   return signInWithPopup(auth, provider)
-    .then(() => console.log("Google sign-in successful"))
+    .then(async (result) => {
+      try {
+        const user = result.user;
+        await createUserDocument(user);
+        console.log("Google sign-in successful");
+      } catch (err) {
+        console.error("Google sign-in post-processing error:", err);
+      }
+    })
     .catch((err) => console.error("Google sign-in error:", err.code, err.message));
 }
 

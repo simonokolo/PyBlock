@@ -5,11 +5,10 @@ export class Project {
     this.blocks = new Map(); // id -> block instance data
     this.connections = [];
     this.variables = new Map(); // name -> { type }
-
     this.nextId = 1;
 
     // Initialise the project with a start node
-    this.createBlock("Start", 4000, 2500);
+    this.createBlock("Start", 3800, 2500);
   }
 
   // Create a new block instance
@@ -65,7 +64,7 @@ export class Project {
     // If this is a VarCreate block, add the variable to the project
     if (type === "VarCreate") {
       const name = block.values.name || "";
-      const varType = block.values.datatype || block.values.type || "int";
+      const varType = block.values.datatype || block.values.type || "integer";
 
       this.addVariable(name, varType);
     }
@@ -260,6 +259,8 @@ export class Project {
     this.connections = [];
     this.variables.clear();
     this.nextId = 1;
+
+    this.createBlock("Start", 3800, 2500);
   }
 
   // Serialize project for saving

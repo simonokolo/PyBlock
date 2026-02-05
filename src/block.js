@@ -120,6 +120,22 @@ export class Block {
         if (content.name === 'name' && this.data.definition?.name === 'VarCreate') {
           const varName = el.value;
           const varType = this.data.values?.datatype || 'any';
+
+          const socket = (this.data.sockets || []).find(s => s.direction === "output" && s.name === "value");
+          if (socket) {
+            // set socket type according to variable type
+            const mapped = (varType === "integer" || varType === "boolean" || varType === "string" || varType === "float") ? varType : "any";
+            socket.type = mapped;
+
+            // update DOM socket element if present
+            const socketEl = document.querySelector(`.socket[data-block-id="${this.data.id}"][data-socket-id="${socket.id}"]`);
+            if (socketEl) {
+              // remove existing datatype classes
+              [...socketEl.classList].filter(c => c.startsWith("type-")).forEach(c => socketEl.classList.remove(c));
+              socketEl.classList.add(`type-${mapped}`);
+              socketEl.dataset.type = mapped;
+            }
+          }
           document.dispatchEvent(new CustomEvent('project-create-variable', { detail: { name: varName, type: varType } }));
         }
 
@@ -146,7 +162,7 @@ export class Block {
             this.data.definition.code = "int(input())";
           } else {
             this.data.definition.code = "input()";
-          }
+          } 
         }
 
         // If varcreate datatype changed, dispatch event
@@ -155,6 +171,22 @@ export class Block {
           const varType = el.value || 'any';
           if (varName) {
             document.dispatchEvent(new CustomEvent('project-create-variable', { detail: { name: varName, type: varType } }));
+          }
+
+          // also update output socket type
+          const socket = (this.data.sockets || []).find(s => s.direction === "output" && s.name === "value");
+          if (socket) {
+            const mapped = (varType === "integer" || varType === "boolean" || varType === "string" || varType === "float") ? varType : "any";
+            socket.type = mapped;
+
+            // update DOM socket element if present
+            const socketEl = document.querySelector(`.socket[data-block-id="${this.data.id}"][data-socket-id="${socket.id}"]`);
+            if (socketEl) {
+              // remove existing datatype classes
+              [...socketEl.classList].filter(c => c.startsWith("type-")).forEach(c => socketEl.classList.remove(c));
+              socketEl.classList.add(`type-${mapped}`);
+              socketEl.dataset.type = mapped;
+            }
           }
         }
 

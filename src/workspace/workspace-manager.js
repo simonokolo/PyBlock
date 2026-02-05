@@ -7,7 +7,7 @@ import { LiveCode } from "/src/workspace/livecode.js";
 
 import { exportBlocksToJSON, loadBlocksFromJSON } from "/src/save-system.js";
 import { initPyodideWorker, executePythonCode } from "/src/utils/pyodide.js";
-import { translator } from '../utils/translator';
+import { Translator } from '../utils/translator';
 
 // WorkspaceManager class to manage the workspace and its components
 class WorkspaceManager {
@@ -26,7 +26,7 @@ class WorkspaceManager {
     //window.canvas = this.canvas; // for debugging ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
     this.catalogue = new Catalogue('catalogue')
     this.livecode = new LiveCode('livecode')
-    this.translator = new translator(this.project);
+    this.translator = new Translator(this.project);
   }
 
   // Create event listeners for execute and translate
@@ -61,6 +61,15 @@ class WorkspaceManager {
       URL.revokeObjectURL(url);
     });
 
+    // new project (clear)
+    document.getElementById("new-project-button").addEventListener("click", () => {
+      if (confirm("Are you sure you want to clear the project? This cannot be undone.")) {
+        this.project.clear();
+        this.canvas.renderFromProject();
+        this.canvas.centerViewport()
+      }
+    });
+
     // upload json
     document.getElementById("upload-project-button").addEventListener("click", () => {
       document.getElementById("upload-project-input").click();
@@ -89,14 +98,12 @@ class WorkspaceManager {
 
   // Execute translated python code
   async executeCode() {
-    // Get the current Python code
-    const response = await fetch('/data/main.py');
-    const pyFileText = await response.text();
+    // Translate the project to Python and execute it
+    const pyFileText = this.translator.translate(this.project);
 
     this.livecode.updateOutput("Running...");
 
     try {
-      // Execute the Python code using Pyodide
       const pythonExecutionResult = await executePythonCode(pyFileText);
       this.livecode.updateOutput(pythonExecutionResult || "(no output)");
       this.livecode.switchTabs("output");
@@ -110,12 +117,8 @@ class WorkspaceManager {
   // Translates block code
   async translateCode() {
     const code = this.translator.translate(this.project);
-    
-    // Get the current Python code
-    const response = await fetch('/data/main.py');
-    const pyFileText = await response.text();
 
-    this.livecode.updateLiveCodeTranslation(pyFileText);
+    this.livecode.updateLiveCodeTranslation(code);
   }
 }
 
