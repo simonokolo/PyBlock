@@ -87,11 +87,12 @@ export class LiveCode {
   updateLiveCodeTranslation(pythonCode) {
     // Clear existing content
     document.getElementById('translation-content').innerHTML = '';
-    // Loop through each statement
-    for (let statement in pythonCode) {
-      // Create a new div for the statement
+    // Loop through each line in the pythonCode string
+    const lines = pythonCode.split('\n');
+    for (let line of lines) {
+      // Create a new div for the line
       const newDiv = document.createElement("div");
-      newDiv.innerHTML = pythonCode[statement];
+      newDiv.innerHTML = line === "" ? "&nbsp;" : line; // Preserve empty lines
       newDiv.classList.add("code-line");
       document.getElementById('translation-content').appendChild(newDiv);
     };

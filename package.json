@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "firebase": "^12.1.0",
-    "pyodide": "^0.28.2",
+    "pyodide": "^0.28.3",
     "vite-plugin-static-copy": "^3.1.2"
   },
   "devDependencies": {
@@ -13,7 +13,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
-    "devhost" : "vite --host",
+    "devhost": "vite --host",
     "build": "vite build"
   },
   "repository": {

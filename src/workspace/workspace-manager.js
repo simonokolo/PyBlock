@@ -76,12 +76,10 @@ class WorkspaceManager {
   // Create event listeners for execute and translate
   setupLiveCodeListeners() {
     this.livecode.onExecute(() => {
-      console.log("Execute button clicked!");
       this.executeCode(); // Call execution logic
     });
 
     this.livecode.onTranslate(() => {
-      console.log("Translate button clicked!");
       this.translateCode(); // Call translation logic
     });
   }
@@ -159,8 +157,7 @@ class WorkspaceManager {
 
   // Translates block code
   async translateCode() {
-    const code = this.translator.translate(this.project);
-
+    const code = this.translator.translate();
     this.livecode.updateLiveCodeTranslation(code);
   }
 }

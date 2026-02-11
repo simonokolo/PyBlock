@@ -1,4 +1,4 @@
-importScripts("https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js");
+importScripts("https://cdn.jsdelivr.net/pyodide/v0.28.3/full/pyodide.js");
 
 let pyodide;
 
@@ -7,7 +7,7 @@ self.onmessage = async (event) => {
 
   if (type === "init") {
     pyodide = await loadPyodide({
-      indexURL: "https://cdn.jsdelivr.net/pyodide/v0.28.2/full/",
+      indexURL: "https://cdn.jsdelivr.net/pyodide/v0.28.3/full/",
     });
 
     // async js_input bridge

@@ -91,7 +91,6 @@ export class Block {
       el.className = "content-item";
       // populate dropdown options when provided
       if (content.type === "dropdown") {
-        console.log(content.options);
 
         // populate dropdown options according to the content definition
         const options = content.options || [];

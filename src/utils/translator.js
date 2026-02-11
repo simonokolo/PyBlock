@@ -32,14 +32,12 @@ export class Translator {
 
     // start
     this.traverse(start);
-
-    console.log(this.lines); // Output code
+    return this.lines.join("\n"); // join lines with newlines
   }
 
   // recursive call to traverse blocks
   traverse(block) {
     if (!block || this.visited.has(block.id)) return;
-    console.log(`Visiting block ${block.id} of type ${block.type}`);
     this.visited.add(block.id);
 
     // handle blocks based on type
