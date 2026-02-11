@@ -1,5 +1,5 @@
 import { auth, db } from '/src/firebase-config.js';
-import { collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
 export function exportBlocksToJSON(project) {
   return JSON.stringify(project.serialize(), null, 2);
@@ -59,4 +59,20 @@ export async function loadAllProjectsFromFirestore(project) {
   });
   
   return projects;
+}
+
+// delete a project from firestore
+export async function deleteProjcetFromFirestore(projectId) {
+  if (!auth || !auth.currentUser) {
+    alert('Not signed in.');
+    return;
+  }
+  
+  try {
+    // Delete the document with the given projectId
+    await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'projects', projectId));``
+  } catch (err) {
+    console.error('Error deleting project:', err);
+    alert('Failed to delete project');
+  }
 }

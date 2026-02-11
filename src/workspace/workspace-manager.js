@@ -5,7 +5,7 @@ import { Canvas } from "/src/workspace/canvas.js";
 import { Catalogue } from "/src/workspace/catalogue.js";
 import { LiveCode } from "/src/workspace/livecode.js";
 
-import { exportBlocksToJSON, loadBlocksFromJSON, saveProjectToFirestore, loadAllProjectsFromFirestore } from "/src/save-system.js";
+import { exportBlocksToJSON, loadBlocksFromJSON, saveProjectToFirestore, loadAllProjectsFromFirestore, deleteProjcetFromFirestore } from "/src/save-system.js";
 import { initPyodideWorker, executePythonCode } from "/src/utils/pyodide.js";
 import { Translator } from '../utils/translator';
 
@@ -23,13 +23,43 @@ class WorkspaceManager {
 
   async updateUserProjectList() {
     const userProjects = await loadAllProjectsFromFirestore(this.project);
+
+    // Clear existing project list
+    const projectListContainer = document.getElementById("project-list");
+    projectListContainer.innerHTML = "";
+
+    // Add a button for each project containing the name and delete button
     for (const project of userProjects) {
       const button = document.createElement("button");
       button.textContent = project.data.name;
-      button.addEventListener("click", async () => {
+
+      // Add a delete button next to the project name
+      const deleteButton = document.createElement("span");
+      deleteButton.textContent = "🗑️";
+      deleteButton.style.marginLeft = "8px";
+      deleteButton.style.cursor = "pointer";
+      button.appendChild(deleteButton);
+
+      // Add event listener for delete button
+      deleteButton.addEventListener("click", async (e) => {
+        e.stopPropagation(); // prevent triggering the load event
+        if (confirm(`Are you sure you want to delete the project "${project.data.name}"? This cannot be undone.`)) {
+          try {
+            await deleteProjcetFromFirestore(project.id);
+            alert('Project deleted.');
+            this.updateUserProjectList(); // refresh the list
+          } catch (err) {
+            console.error('Error deleting project:', err);
+            alert('Failed to delete project. See console for details.');
+          }
+        }
+      });
+
+      button.addEventListener("click", async() => {
         await loadBlocksFromJSON(project.data.data, this.project);
         this.canvas.renderFromProject();
       });
+
       document.getElementById("project-list").appendChild(button);
     }
   }

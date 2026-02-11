@@ -87,7 +87,6 @@ export class LiveCode {
   updateLiveCodeTranslation(pythonCode) {
     // Clear existing content
     document.getElementById('translation-content').innerHTML = '';
-    pythonCode = pythonCode.split("\n");
     // Loop through each statement
     for (let statement in pythonCode) {
       // Create a new div for the statement
