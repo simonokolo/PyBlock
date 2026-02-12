@@ -6,7 +6,7 @@ export async function initPyodideWorker() {
   return new Promise((resolve) => {
     pyWorker = new Worker(new URL("./pyodide-worker.js", import.meta.url));
 
-    // ✅ Use addEventListener so we don't overwrite this
+    // Use addEventListener so we don't overwrite this
     pyWorker.addEventListener("message", (event) => {
       const data = event.data;
 

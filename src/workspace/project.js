@@ -123,12 +123,16 @@ export class Project {
 
     // Check max connections
     if (fromCount >= fromMax) {
-      console.log("Max connections reached on target socket, removing old connection");
       this.getConnectionsForSocket(fromBlockId, fromSocketId).forEach(conn => {
-        this.removeConnection(conn.from.blockId, conn.from.socketId, conn.to.blockId, conn.to.socketId);
+        this.removeConnection(
+          conn.from.blockId,
+          conn.from.socketId,
+          conn.to.blockId,
+          conn.to.socketId
+        );
       });
-      return true;
     }
+
 
     // Check max connections
     if (toCount >= toMax) {

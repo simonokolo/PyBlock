@@ -162,6 +162,8 @@ export class Block {
           } else {
             this.data.definition.code = "input()";
           } 
+
+          document.dispatchEvent(new CustomEvent('updatePage'));
         }
 
         // If varcreate datatype changed, dispatch event
@@ -230,6 +232,7 @@ export class Block {
 
             // set code to the variable name
             this.data.definition.code = varName;
+            document.dispatchEvent(new CustomEvent('updatePage'));
           }
         }
       });
@@ -255,7 +258,7 @@ export class Block {
       if (contentName !== 'variable') return;
 
       // remember selected value
-      const prev = sel.value;
+      const prev = this.data.values?.[contentName] || "";
 
       // clear existing
       sel.innerHTML = '';

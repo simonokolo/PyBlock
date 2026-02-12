@@ -39,6 +39,7 @@ export class Translator {
   traverse(block) {
     if (!block || this.visited.has(block.id)) return;
     this.visited.add(block.id);
+    console.log(this.project.blocks)
 
     // handle blocks based on type
     switch (block.type) {
@@ -56,6 +57,11 @@ export class Translator {
 
       case "Start":
         // start block just traverse next
+        this.traverseNext(block);
+        break;
+
+      case "VarCreate":
+        this.handleVarCreate(block);
         this.traverseNext(block);
         break;
 
@@ -83,6 +89,22 @@ export class Translator {
 
     const nextBlock = this.project.blocks.get(conns[0].to.blockId);
     this.traverse(nextBlock);
+  }
+
+  // handle variable creation block
+  handleVarCreate(block) {
+    const varName = block.values.name || alert("VarCreate missing variable name");
+    
+    // default values for each datatype
+    const defaults = {
+      integer: '0',
+      float: '0',
+      string: '""',
+      boolean: 'False'
+    };
+    
+    const value = defaults[block.values.datatype] || 'None';
+    this.pushCode(`${varName} = ${value}`);
   }
 
   // handle loop block

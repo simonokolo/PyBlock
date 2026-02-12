@@ -5,6 +5,7 @@ export class Canvas {
     this.project = project;
     this.container = document.getElementById(containerId);
     this.setupViewport();
+    this.tooltip.style.visibility = "hidden";
     
     // map of projectBlockId 
     this.blockViews = new Map();
@@ -62,7 +63,7 @@ export class Canvas {
 
     // drag connections
     this.draggingConnection = null;
-    this.tooltip.style.visibility = "hidden";
+    
     
     // render any existing blocks in the project
     this.renderFromProject();
@@ -144,6 +145,10 @@ export class Canvas {
       };
     });
 
+    document.addEventListener("updatePage", () => {
+      this.renderFromProject();
+    });
+
     // Create variable event from VarCreate blocks
     document.addEventListener('project-create-variable', (e) => {
       const { name, type } = e.detail || {};
@@ -155,6 +160,7 @@ export class Canvas {
       Array.from(this.blockViews.values()).forEach(v => {
         try { v.updateVariableOptions(variables); } catch (err) {}
       });
+      this.renderConnections();
     });
 
     //---------[EVENT LISTENERS FOR CANVAS MOVEMENT]---------//
@@ -399,7 +405,7 @@ export class Canvas {
 
     // Delete nodes on Backspace
     window.addEventListener("keydown", (e) => {
-      if (e.key === "Backspace") {
+      if (e.key === "Delete") {
         // find selected views
         const selected = Array.from(this.blockViews.values()).filter(v => v.selected);
         selected.forEach(v => {
