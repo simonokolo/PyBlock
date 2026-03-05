@@ -166,7 +166,7 @@ export class Canvas {
     //---------[EVENT LISTENERS FOR CANVAS MOVEMENT]---------//
 
     // Stop panning and remove selection box on mouse up
-    this.viewport.addEventListener("mouseup", () => {
+    this.viewport.addEventListener("mouseup", (e) => {
 
       if (this.isDraggingNodes) {
         // Snap selected nodes to grid and update project positions
@@ -209,6 +209,7 @@ export class Canvas {
       
       // Pinch-to-zoom (ctrlKey)
       if (e.ctrlKey) {
+        console.warn("THIS MAY NOT BE USED, IDK")
         const oldZoom = this.zoom;
         const delta = -e.deltaY;
         const zoomFactor = delta > 0 ? 1.02 : 0.98;
@@ -291,6 +292,14 @@ export class Canvas {
     
         // clear selection
         Array.from(this.blockViews.values()).forEach(v => v.setSelected(false));
+      }
+
+      // mouse pan
+      else if (e.button === 1) {
+        console.log("Middle mouse down - start panning");
+        this.isPanning = true;
+        this.startX = e.clientX - this.translateX;
+        this.startY = e.clientY - this.translateY;
       }
     });
 

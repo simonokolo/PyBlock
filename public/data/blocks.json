@@ -270,6 +270,43 @@
       "outputs": [{ "name": "exec", "type": "flow" }],
       "contents": [],
       "code": ""
+    },
+
+
+    {
+      "name": "Integer Input",
+      "type": "Integer",
+      "blockImage": "../images/icons/block-icons/integerInputPyblock.png",
+      "inputs": [],
+      "outputs": [{ "name": "value", "type": "integer"}],
+      "contents": [{ "name": "inputValue", "type": "integer"}],
+      "code": "value"
+    },
+    {
+      "name": "Float Input",
+      "type": "Float",
+      "blockImage": "../images/icons/block-icons/floatInputPyblock.png",
+      "inputs": [],
+      "outputs": [{ "name": "value", "type": "float"}],
+      "contents": [{ "name": "inputValue", "type": "float"}],
+      "code": "value"
+    },
+    {
+      "name": "String Input",
+      "type": "String",
+      "blockImage": "../images/icons/block-icons/stringInputPyblock.png",
+      "inputs": [],
+      "outputs": [{ "name": "value", "type": "string"}],
+      "contents": [{ "name": "inputValue", "type": "string"}]
+    },
+    {
+      "name": "Boolean Input",
+      "type": "Boolean",
+      "blockImage": "../images/icons/block-icons/booleanInputPyblock.png",
+      "inputs": [],
+      "outputs": [{ "name": "value", "type": "boolean"}],
+      "contents": [{ "name": "inputValue", "type": "boolean"}],
+      "code": "inputValue"
     }
   ]
 }

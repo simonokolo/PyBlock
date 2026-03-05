@@ -75,6 +75,11 @@
 .node[data-type="Variables"] { background-color: #EA4335;}
 .node[data-type="Terminator"] { background-color: #C8C8C8;}
 
+.node[data-type="Integer"] { background-color: #1E3A8A;} 
+.node[data-type="Float"] { background-color: #00ACC1;} 
+.node[data-type="String"] { background-color: #E91E63;} 
+.node[data-type="Boolean"] { background-color: #AEEA00;}
+
 .node {
   height:auto;   /* allow grow */
   min-height:100px;

@@ -4,169 +4,287 @@ export class Translator {
     this.lines = [];
     this.indentationLevel = 0;
     this.visited = new Set();
+
+    // handlers for flow blocks
+    this.handlers = {
+      Start: this.handleStart.bind(this),
+      Output: this.handleOutput.bind(this),
+      VarSet: this.handleVarSet.bind(this),
+      VarCreate: this.handleVarCreate.bind(this),
+      If: this.handleIf.bind(this),
+      While: this.handleWhile.bind(this),
+      "Loop X Times": this.handleLoop.bind(this)
+    };
   }
 
-  // get indentation
-  indentCode() {
-    return "  ".repeat(this.indentationLevel);
-  }
+  //============================
+  // ENTRY
+  //============================
 
-  // Add line of code with the proper indentation
-  pushCode(line) {
-    this.lines.push(this.indentCode() + line);
-  }
-
-  // begin translation
   translate() {
-    this.visited.clear();
-    this.lines.length = 0;
+    this.lines = [];
     this.indentationLevel = 0;
+    this.visited.clear();
 
-    let start;
-    for (const block of this.project.blocks.values()) {
-      if (block.type === "Start") {
-        start = block;
-        break;
+    // find the Start block to begin traversal
+    const start = [...this.project.blocks.values()]
+      .find(b => b.type === "Start");
+    if (!start) {console.warn("No Start block found");
+      return "";
+    }
+
+    // traverse starting from the start block
+    this.traverseFlow(start);
+    return this.lines.join("\n");
+  }
+
+  //============================
+  // FLOW TRAVERSAL
+  //============================
+
+  traverseFlow(block) {
+    if (!block || this.visited.has(block.id)) return;
+    // mark block as visited to prevent infinite loops
+    this.visited.add(block.id);
+
+    const handler = this.handlers[block.type];
+
+    // check if there is handler for the type
+    if (handler) {
+      handler(block);
+    } else {
+      this.handleGeneric(block);
+    }
+  }
+
+  handleStart(block) {
+    // simply get next block
+    this.traverseFlow(this.getNextFlow(block));
+  }
+
+  handleGeneric(block) {
+    const code = this.compileExpression(block);
+
+    // add code to list if exists
+    if (code) {this.pushCode(code);}
+
+    // continue traversal
+    this.traverseFlow(this.getNextFlow(block));
+  }
+
+  //============================
+  // OUTPUT
+  //============================
+
+  handleOutput(block) {
+    // get value to print
+    const value = this.resolveExpressionInput(block, "value");
+
+    this.pushCode(`print(${value})`);
+    // continue traversal
+    this.traverseFlow(this.getNextFlow(block));
+  }
+
+  //============================
+  // VARIABLES
+  //============================
+
+  handleVarSet(block) {
+    // get variable name and value
+    const variable = block.values?.variable;
+    const value = this.resolveExpressionInput(block, "value");
+    // set variable and value and continue traversal
+    this.pushCode(`${variable} = ${value}`);
+    this.traverseFlow(this.getNextFlow(block));
+  }
+
+  handleVarCreate(block) {
+    const name = block.values?.name;
+
+    // defaults for each datatype
+    const defaults = {
+      integer: "0",
+      float: "0.0",
+      string: '""',
+      boolean: "False"
+    };
+
+    // get datatype and default value for it
+    const datatype = block.values?.datatype;
+    const value = defaults[datatype] ?? "None";
+
+    // create variable with default value and continue traversal
+    this.pushCode(`${name} = ${value}`);
+    this.traverseFlow(this.getNextFlow(block));
+  }
+
+  //============================
+  // CONTROL FLOW
+  //============================
+
+  handleIf(block) {
+    // get condition for if statement
+    const condition = this.resolveExpressionInput(block, "condition");
+    this.pushCode(`if ${condition}:`);
+
+    // get branches for true and false
+    const trueBranch = this.getExecOutput(block, "true");
+    const falseBranch = this.getExecOutput(block, "false");
+
+    // handle true branch
+    this.indent(() => this.traverseFlow(trueBranch));
+
+    // handle false branch if exists
+    if (falseBranch) {
+      this.pushCode("else:");
+      this.indent(() => this.traverseFlow(falseBranch));
+    }
+  }
+
+  handleWhile(block) {
+    // get condition for while loop
+    const condition = this.resolveExpressionInput(block, "condition");
+    this.pushCode(`while ${condition}:`);
+
+    // get loop body and after loop flow
+    const body = this.getExecOutput(block, "loopContent");
+    const after = this.getExecOutput(block, "loopComplete");
+
+    // handle and indent loop body
+    this.indent(() => this.traverseFlow(body));
+    this.traverseFlow(after);
+  }
+
+  handleLoop(block) {
+    // get count for loop
+    const count =
+      this.resolveExpressionInput(block, "count") ||
+      block.values?.count ||
+      "0";
+    this.pushCode(`for i in range(${count}):`);
+
+    // get loop body and after loop flow
+    const body = this.getExecOutput(block, "loopContent");
+    const after = this.getExecOutput(block, "loopComplete");
+
+    // handle and indent loop body
+    this.indent(() => this.traverseFlow(body));
+    this.traverseFlow(after);
+  }
+
+  //============================
+  // EXPRESSION COMPILER
+  //============================
+
+  compileExpression(block) {
+    // if block has no code template make it direct
+    const template = block.definition?.code;
+    if (!template) {return block.values?.inputValue ?? ""}
+
+    let code = template;
+    const inputs = block.definition.inputs || [];
+
+    // replace input placeholders with actual values
+    for (const input of inputs) {
+      if (input.type === "flow") continue;
+
+      // resolve value for this input
+      const value = this.resolveExpressionInput(block, input.name);
+
+      // replace placeholder with the value
+      if (value !== undefined && value !== null) {
+        code = code.replaceAll(input.name, value);
       }
     }
 
-    // start
-    this.traverse(start);
-    return this.lines.join("\n"); // join lines with newlines
+    return `(${code})`;
   }
 
-  // recursive call to traverse blocks
-  traverse(block) {
-    if (!block || this.visited.has(block.id)) return;
-    this.visited.add(block.id);
-    console.log(this.project.blocks)
-
-    // handle blocks based on type
-    switch (block.type) {
-      case "Loop X Times":
-        this.handleLoop(block);
-        break;
-
-      case "While":
-        this.handleWhile(block);
-        break;
-
-      case "If":
-        this.handleIf(block);
-        break;
-
-      case "Start":
-        // start block just traverse next
-        this.traverseNext(block);
-        break;
-
-      case "VarCreate":
-        this.handleVarCreate(block);
-        this.traverseNext(block);
-        break;
-
-      default:
-        // normal statement block
-        this.pushCode(block.definition.code || console.warn(`${block.id} missing code definition`));  // if missing
-        this.traverseNext(block);
-        break;
-    }
-  }
-
-  // find next block connected to the execution output and traverse
-  traverseNext(block) {
-    const execOutput = block.sockets.filter(
-      socket => socket.direction === "output" && socket.type === "flow"
-    );
-
-    // if no flow outputs return
-    if (execOutput.length === 0) return;
-
-    // since every other block has one exec output, the first one is taken
-    const socket = execOutput[0];
-    const conns = this.project.getConnectionsForSocket(block.id, socket.id);
-    if (conns.length === 0) return;
-
-    const nextBlock = this.project.blocks.get(conns[0].to.blockId);
-    this.traverse(nextBlock);
-  }
-
-  // handle variable creation block
-  handleVarCreate(block) {
-    const varName = block.values.name || alert("VarCreate missing variable name");
-    
-    // default values for each datatype
-    const defaults = {
-      integer: '0',
-      float: '0',
-      string: '""',
-      boolean: 'False'
-    };
-    
-    const value = defaults[block.values.datatype] || 'None';
-    this.pushCode(`${varName} = ${value}`);
-  }
-
-  // handle loop block
-  handleLoop(block) {
-    const count = block.values.count || alert("Loop block missing value");
-    this.pushCode(`for i in range(${count}):`);
-
-    const body = this.getExecOutput(block, "loopContent");  // get loop body
-    const after = this.getExecOutput(block, "loopComplete");  // get block after loop
-
-    this.indentationLevel++;  // increase indentation for code inside loop
-    this.traverse(body);
-    this.indentationLevel--;  // return to same indentation level as loop block after traversing loop body
-
-    this.traverse(after); // traverse blocks after loop
-  }
-
-  // handle while block
-  handleWhile(block) {
-    this.pushCode(`while condition:`);
-
-    const body = this.getExecOutput(block, "loopContent"); // get while loop body
-    const after = this.getExecOutput(block, "loopComplete"); // get block after while loop
-
-    this.indentationLevel++;
-    this.traverse(body); // traverse while loop body first
-    this.indentationLevel--;
-
-    this.traverse(after);
-  }
-
-  // handle if block
-  handleIf(block) {
-    this.pushCode(`if condition:`);
-
-    const trueBranch = this.getExecOutput(block, "true"); // get true branch
-    const falseBranch = this.getExecOutput(block, "false"); // get false branch
-
-    this.indentationLevel++;
-    this.traverse(trueBranch);  // traverse true branch first
-    this.indentationLevel--;
-
-    // if there is a false branch add else statement and traverse it
-    if (falseBranch) {
-      this.pushCode(`else:`);
-      this.indentationLevel++;
-      this.traverse(falseBranch);
-      this.indentationLevel--;
-    }
-  }
-
-  // find the block connected to the exec output of the selected socket
-  getExecOutput(block, socketName) {
+  resolveExpressionInput(block, socketName) {
+    // find the input socket with the given name
     const socket = block.sockets.find(
-      socket => socket.direction === "output" && socket.name === socketName
+      s => s.direction === "input" && s.name === socketName
     );
-    if (!socket) console.warn(`Block ${block.id} missing socket ${socketName}`);  // warn if socket not found
 
-    // find connections for this socket
-    const conns = this.project.getConnectionsForSocket(block.id, socket.id);
-    if (conns.length === 0) return null;  // return null if no connections
+    // if socket is invalid, return default value
+    if (!socket) {return block.values?.[socketName]}
 
-    return this.project.blocks.get(conns[0].to.blockId);  // return the block connected to this socket
+    // get connections for this socket
+    const conns =
+      this.project.getConnectionsForSocket(block.id, socket.id);
+    // if no connections, return default value
+    if (!conns.length) {return block.values?.[socketName]}
+
+    // get the block where the connection is coming from
+    const source = this.project.blocks.get(conns[0].from.blockId);
+    // if no source block, return null
+    if (!source) return null;
+
+    // direct input (when there is no connection)
+    if (source.values?.inputValue !== undefined) {
+      if (source.definition?.type === "String") {
+        return `"${source.values.inputValue}"`;
+      }
+      return source.values.inputValue;
+    }
+
+    // handle when the start block is get var, meaning its a variable type
+    if (source.definition?.name === "VarGet") {
+      return source.values?.variable;
+    }
+
+    return this.compileExpression(source);
+  }
+
+  //============================
+  // FLOW CONNECTION HELPERS
+  //============================
+
+  getNextFlow(block) {
+    // find the output flow socket
+    const socket = block.sockets.find(
+      s => s.direction === "output" && s.type === "flow"
+    );
+    // if no socket, return null
+    if (!socket) return null;
+
+    // get connections for this socket
+    const conns =
+      this.project.getConnectionsForSocket(block.id, socket.id);
+    if (!conns.length) return null;
+
+    // return the block where the connection is going to
+    return this.project.blocks.get(conns[0].to.blockId);
+  }
+
+  getExecOutput(block, socketName) {
+    // find the output flow socket with a name from parameter
+    const socket = block.sockets.find(
+      s => s.direction === "output" && s.name === socketName
+    );
+    if (!socket) return null;
+
+    // get connections for this socket
+    const conns =
+      this.project.getConnectionsForSocket(block.id, socket.id);
+    if (!conns.length) return null;
+
+    // return the block where the connection is going to
+    return this.project.blocks.get(conns[0].to.blockId);
+  }
+
+  //============================
+  // CODE FORMATTING
+  //============================
+
+  indent(fn) {
+    this.indentationLevel++;
+    fn();
+    this.indentationLevel--;
+  }
+
+  pushCode(line) {
+    const indent = "  ".repeat(this.indentationLevel);
+    this.lines.push(indent + line);
   }
 }
