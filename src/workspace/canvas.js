@@ -207,9 +207,8 @@ export class Canvas {
     this.viewport.addEventListener("wheel", e => {
       e.preventDefault();
       
-      // Pinch-to-zoom (ctrlKey)
-      if (e.ctrlKey) {
-        console.warn("THIS MAY NOT BE USED, IDK")
+      // Trackpad zoom
+      if (e.ctrlKey) { // uses ctrl
         const oldZoom = this.zoom;
         const delta = -e.deltaY;
         const zoomFactor = delta > 0 ? 1.02 : 0.98;

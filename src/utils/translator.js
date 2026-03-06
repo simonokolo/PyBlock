@@ -197,7 +197,7 @@ export class Translator {
       }
     }
 
-    return `(${code})`;
+    return code;
   }
 
   resolveExpressionInput(block, socketName) {

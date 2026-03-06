@@ -4,9 +4,8 @@
       "name": "Input",
       "type": "I/O",
       "blockImage": "../images/icons/block-icons/inputPyblock.png",
-      "inputs": [{ "name": "exec", "type": "flow" }],
+      "inputs": [],
       "outputs": [
-        { "name": "exec", "type": "flow" },
         { "name": "value", "type": "string" }
       ],
       "contents": [{ "name": "datatype", "type": "dropdown", "default": "string", "options": ["integer","string"] }],
@@ -47,7 +46,7 @@
       ],
       "outputs": [{ "name": "loopContent", "type": "flow" }, { "name": "loopComplete", "type": "flow" }],
       "contents": [{ "name": "count", "type": "string", "default": "" }],
-      "code": "for i in range(count):\n    pass"
+      "code": "for _ in range(count):\n    pass"
     },
     {
       "name": "If",
@@ -164,7 +163,7 @@
         { "name": "A", "type": "integer", "default": "" },
         { "name": "B", "type": "integer", "default": "" }
       ],
-      "outputs": [{ "name": "result", "type": "float" }],
+      "outputs": [{ "name": "result", "type": "any" }],
       "code": "A + B"
     },
     {
@@ -176,7 +175,7 @@
         { "name": "A", "type": "integer", "default": "" },
         { "name": "B", "type": "integer", "default": "" }
       ],
-      "outputs": [{ "name": "result", "type": "float" }],
+      "outputs": [{ "name": "result", "type": "any" }],
       "code": "A - B"
     },
     {
@@ -188,7 +187,7 @@
         { "name": "A", "type": "integer", "default": "" },
         { "name": "B", "type": "integer", "default": "" }
       ],
-      "outputs": [{ "name": "result", "type": "float" }],
+      "outputs": [{ "name": "result", "type": "any" }],
       "code": "A * B"
     },
     {
@@ -200,7 +199,7 @@
         { "name": "A", "type": "integer", "default": "" },
         { "name": "B", "type": "integer", "default": "" }
       ],
-      "outputs": [{ "name": "result", "type": "float" }],
+      "outputs": [{ "name": "result", "type": "any" }],
       "code": "A / B"
     },
     {
@@ -212,7 +211,7 @@
         { "name": "A", "type": "integer", "default": "" },
         { "name": "B", "type": "integer", "default": "" }
       ],
-      "outputs": [{ "name": "result", "type": "float" }],
+      "outputs": [{ "name": "result", "type": "any" }],
       "code": "A % B"
     },
     {
@@ -224,7 +223,7 @@
         { "name": "A", "type": "integer", "default": "" },
         { "name": "B", "type": "integer", "default": "" }
       ],
-      "outputs": [{ "name": "value", "type": "float" }],
+      "outputs": [{ "name": "value", "type": "any" }],
       "code": "random()"
     },
 
